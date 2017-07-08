@@ -1,0 +1,27 @@
+{
+  "type": "AnimalInteractionScreen",
+  "skin": "engine:default",
+  "contents": {
+    "type": "RelativeLayout",
+    "contents": [
+      {
+        "type": "ColumnLayout",
+        "columns": 1,
+        "verticalSpacing": 8,
+        "contents": [
+          {
+            "type": "UIButton",
+            "text": "Activate Mating",
+            "id": "mateButton"
+          }
+        ],
+        "layoutInfo": {
+          "width": 300,
+          "height": 100,
+          "position-horizontal-center": {},
+          "position-vertical-center": {}
+        }
+      }
+    ]
+  }
+}

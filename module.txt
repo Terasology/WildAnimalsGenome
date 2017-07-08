@@ -1,9 +1,17 @@
 {
     "id" : "WildAnimalsGenome",
     "version" : "0.1.0-SNAPSHOT",
-    "author" : "",
+    "author" : "arpan98",
     "displayName" : "WildAnimalsGenome",
-    "description" : "",
-    "dependencies" : [],
+    "description" : "Integrates WildAnimals with Genome adding breeding capabilities.",
+    "dependencies" : [
+    {
+        "id": "WildAnimals",
+        "minVersion": "0.1.1"
+    },
+    {
+        "id": "Genome",
+        "minVersion": "0.1.1"
+    }],
     "serverSideOnly" : false
 }
