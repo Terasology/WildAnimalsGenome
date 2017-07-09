@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.wildAnimalsGenome.component;
+package org.terasology.wildAnimalsGenome.event;
 
-import org.terasology.entitySystem.Component;
+import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.event.Event;
 import org.terasology.network.Replicate;
 
-public class MatingComponent implements Component {
+public class MatingProposalResponseEvent implements Event {
     @Replicate
-    public boolean matingDisabled = false;
+    public EntityRef instigator;
 
     @Replicate
-    public boolean readyToMate = false;
+    public boolean accepted;
 
-    @Replicate
-    public boolean inMatingProcess = false;
+    public MatingProposalResponseEvent(EntityRef instigator, boolean accepted) {
+        this.instigator = instigator;
+        this.accepted = accepted;
+    }
 }

@@ -59,5 +59,9 @@ public class AnimalInteractionScreen extends BaseInteractionScreen {
                 mateButton.setText("Deactivate mating");
             }
         });
+
+        if (interactionTarget.getComponent(MatingComponent.class).matingDisabled) {
+            mateButton.setEnabled(false);
+        }
     }
 }

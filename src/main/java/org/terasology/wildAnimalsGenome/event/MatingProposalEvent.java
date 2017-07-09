@@ -19,7 +19,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.Event;
 
 public class MatingProposalEvent implements Event {
-    private EntityRef instigator;
+    public EntityRef instigator;
 
     public MatingProposalEvent(EntityRef instigator) {
         this.instigator = instigator;

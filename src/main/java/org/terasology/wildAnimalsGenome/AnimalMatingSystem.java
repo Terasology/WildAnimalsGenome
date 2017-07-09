@@ -31,6 +31,8 @@ import org.terasology.registry.In;
 import org.terasology.wildAnimals.component.WildAnimalComponent;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
 import org.terasology.wildAnimalsGenome.event.MatingActivatedEvent;
+import org.terasology.wildAnimalsGenome.event.MatingProposalEvent;
+import org.terasology.wildAnimalsGenome.event.MatingProposalResponseEvent;
 
 import java.util.List;
 
@@ -53,7 +55,9 @@ public class AnimalMatingSystem extends BaseComponentSystem {
         if (matingComponent.readyToMate) {
             List<EntityRef> nearbyAnimals = findNearbyAnimals(entityRef.getComponent(LocationComponent.class), searchRadius, entityRef.getComponent(WildAnimalComponent.class).name);
             List<EntityRef> animals = filterMatingActivatedAnimals(nearbyAnimals);
-            logger.info(animals.toString());
+            for (EntityRef animal : animals) {
+                animal.send(new MatingProposalEvent(entityRef));
+            }
             delayManager.addDelayedAction(entityRef, MATING_SEARCH_ID, matingSearchInterval);
         }
     }
@@ -61,6 +65,18 @@ public class AnimalMatingSystem extends BaseComponentSystem {
     @ReceiveEvent(components = {WildAnimalComponent.class})
     public void onMatingActivated(MatingActivatedEvent event, EntityRef entityRef, MatingComponent matingComponent) {
         delayManager.addDelayedAction(entityRef, MATING_SEARCH_ID, matingSearchInterval);
+    }
+
+    @ReceiveEvent
+    public void onMatingProposalReceived(MatingProposalEvent event, EntityRef entityRef, MatingComponent matingComponent) {
+        if (matingComponent.readyToMate && !matingComponent.inMatingProcess) {
+            event.instigator.send(new MatingProposalResponseEvent(entityRef, true));
+        }
+    }
+
+    @ReceiveEvent
+    public void onMatingResponseReceived(MatingProposalResponseEvent event, EntityRef entityRef, MatingComponent matingComponent) {
+        
     }
 
     private List<EntityRef> findNearbyAnimals(LocationComponent actorLocationComponent, float searchRadius, String animalName) {
