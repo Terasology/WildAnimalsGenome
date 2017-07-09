@@ -1,4 +1,5 @@
 {
+  "InteractionTarget": {},
   "InteractionScreen": {
     "screen": "wildAnimalsGenome:animalInteractionScreen"
   }
