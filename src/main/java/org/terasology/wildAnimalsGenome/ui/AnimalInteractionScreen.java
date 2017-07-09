@@ -15,11 +15,49 @@
  */
 package org.terasology.wildAnimalsGenome.ui;
 
-import org.terasology.rendering.nui.CoreScreenLayer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.rendering.nui.BaseInteractionScreen;
+import org.terasology.rendering.nui.widgets.UIButton;
+import org.terasology.wildAnimalsGenome.component.MatingComponent;
+import org.terasology.wildAnimalsGenome.event.MatingActivatedEvent;
 
-public class AnimalInteractionScreen extends CoreScreenLayer {
+public class AnimalInteractionScreen extends BaseInteractionScreen {
+    private static final Logger logger = LoggerFactory.getLogger(AnimalInteractionScreen.class);
+
+    private UIButton mateButton;
+
     @Override
     public void initialise() {
+        mateButton = find("mateButton", UIButton.class);
+    }
 
+    @Override
+    protected void initializeWithInteractionTarget(EntityRef interactionTarget) {
+        if (interactionTarget.hasComponent(MatingComponent.class)) {
+            if (interactionTarget.getComponent(MatingComponent.class).readyToMate) {
+                mateButton.setText("Deactivate mating");
+            } else {
+                mateButton.setText("Activate mating");
+            }
+        } else {
+            MatingComponent matingComponent = new MatingComponent();
+            matingComponent.readyToMate = false;
+            interactionTarget.addComponent(matingComponent);
+            mateButton.setText("Activate mating");
+        }
+
+        mateButton.subscribe(button -> {
+            MatingComponent matingComponent = interactionTarget.getComponent(MatingComponent.class);
+            if (matingComponent.readyToMate) {
+                matingComponent.readyToMate = false;
+                mateButton.setText("Activate mating");
+            } else {
+                matingComponent.readyToMate = true;
+                interactionTarget.send(new MatingActivatedEvent());
+                mateButton.setText("Deactivate mating");
+            }
+        });
     }
 }
