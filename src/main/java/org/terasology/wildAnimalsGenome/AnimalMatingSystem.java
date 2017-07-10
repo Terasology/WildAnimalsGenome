@@ -26,12 +26,16 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.genome.breed.BreedingAlgorithm;
 import org.terasology.genome.breed.FavourableWeightedBreedingAlgorithm;
+import org.terasology.genome.component.GenomeComponent;
+import org.terasology.genome.events.OnBreed;
 import org.terasology.genome.system.GenomeManager;
 import org.terasology.logic.characters.AliveCharacterComponent;
+import org.terasology.logic.characters.CharacterTeleportEvent;
 import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.delay.DelayManager;
 import org.terasology.logic.delay.DelayedActionTriggeredEvent;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.math.geom.Vector3f;
 import org.terasology.registry.In;
 import org.terasology.rendering.nui.NUIManager;
 import org.terasology.wildAnimals.component.WildAnimalComponent;
@@ -97,6 +101,19 @@ public class AnimalMatingSystem extends BaseComponentSystem {
             entityRef.send(new MatingInitiatedEvent(entityRef, event.instigator));
             logger.info("Mating between " + entityRef.getId() + " and " + event.instigator.getId());
         }
+    }
+
+    @ReceiveEvent
+    public void onAnimalsBred(OnBreed event, EntityRef entityRef, WildAnimalComponent wildAnimalComponent) {
+        logger.info(event.getOrganism1().getComponent(GenomeComponent.class).genes);
+        logger.info(event.getOrganism2().getComponent(GenomeComponent.class).genes);
+        logger.info(event.getOffspring().getComponent(GenomeComponent.class).genes);
+        LocationComponent locationComponent = entityRef.getComponent(LocationComponent.class);
+        Vector3f spawnPos = locationComponent.getWorldPosition();
+        Vector3f offset = new Vector3f(locationComponent.getWorldDirection());
+        offset.scale(2);
+        spawnPos.add(offset);
+        event.getOffspring().send(new CharacterTeleportEvent(spawnPos));
     }
 
     @ReceiveEvent(priority = EventPriority.PRIORITY_HIGH, components = {WildAnimalComponent.class})

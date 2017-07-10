@@ -32,7 +32,6 @@ import org.terasology.genome.events.OnBreed;
 import org.terasology.genome.genomeMap.SeedBasedGenomeMap;
 import org.terasology.logic.characters.CharacterMovementComponent;
 import org.terasology.registry.In;
-import org.terasology.wildAnimals.component.WildAnimalComponent;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
 import org.terasology.wildAnimalsGenome.event.MatingInitiatedEvent;
 import org.terasology.world.WorldProvider;
@@ -95,13 +94,6 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
             offspring = entityManager.create(event.animal1.getParentPrefab());
         }
         entityRef.send(new OnBreed(event.animal1, event.animal2, offspring));
-    }
-
-    @ReceiveEvent
-    public void onAnimalsBred(OnBreed event, EntityRef entityRef, WildAnimalComponent wildAnimalComponent) {
-        logger.info(event.getOrganism1().getComponent(GenomeComponent.class).genes);
-        logger.info(event.getOrganism2().getComponent(GenomeComponent.class).genes);
-        logger.info(event.getOffspring().getComponent(GenomeComponent.class).genes);
     }
 
     private void addPropertyMap(EntityRef animal1, EntityRef animal2, String genomeID) {
