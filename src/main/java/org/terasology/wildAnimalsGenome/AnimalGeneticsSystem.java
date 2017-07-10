@@ -30,7 +30,6 @@ import org.terasology.genome.breed.FavourableWeightedBreedingAlgorithm;
 import org.terasology.genome.component.GenomeComponent;
 import org.terasology.genome.events.OnBreed;
 import org.terasology.genome.genomeMap.SeedBasedGenomeMap;
-import org.terasology.genome.system.GenomeManager;
 import org.terasology.logic.characters.CharacterMovementComponent;
 import org.terasology.registry.In;
 import org.terasology.wildAnimals.component.WildAnimalComponent;
@@ -89,7 +88,12 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
         event.animal1.saveComponent(genomeComponent1);
         event.animal2.saveComponent(genomeComponent2);
 
-        EntityRef offspring = entityManager.create("WildAnimals:deer");
+        EntityRef offspring;
+        if (event.animal1.getParentPrefab().getName().equals("WildAnimals:deer")) {
+            offspring = entityManager.create("WildAnimals:babyDeer");
+        } else {
+            offspring = entityManager.create(event.animal1.getParentPrefab());
+        }
         entityRef.send(new OnBreed(event.animal1, event.animal2, offspring));
     }
 

@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.event.EventPriority;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
@@ -27,16 +28,19 @@ import org.terasology.genome.breed.BreedingAlgorithm;
 import org.terasology.genome.breed.FavourableWeightedBreedingAlgorithm;
 import org.terasology.genome.system.GenomeManager;
 import org.terasology.logic.characters.AliveCharacterComponent;
+import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.delay.DelayManager;
 import org.terasology.logic.delay.DelayedActionTriggeredEvent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.registry.In;
+import org.terasology.rendering.nui.NUIManager;
 import org.terasology.wildAnimals.component.WildAnimalComponent;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
 import org.terasology.wildAnimalsGenome.event.MatingActivatedEvent;
 import org.terasology.wildAnimalsGenome.event.MatingInitiatedEvent;
 import org.terasology.wildAnimalsGenome.event.MatingProposalEvent;
 import org.terasology.wildAnimalsGenome.event.MatingProposalResponseEvent;
+import org.terasology.wildAnimalsGenome.ui.AnimalInteractionScreen;
 
 import java.util.List;
 
@@ -47,6 +51,9 @@ public class AnimalMatingSystem extends BaseComponentSystem {
 
     @In
     private EntityManager entityManager;
+
+    @In
+    private NUIManager nuiManager;
 
     private long matingSearchInterval = 1000L;
     private float searchRadius = 10f;
@@ -90,6 +97,13 @@ public class AnimalMatingSystem extends BaseComponentSystem {
             entityRef.send(new MatingInitiatedEvent(entityRef, event.instigator));
             logger.info("Mating between " + entityRef.getId() + " and " + event.instigator.getId());
         }
+    }
+
+    @ReceiveEvent(priority = EventPriority.PRIORITY_HIGH, components = {WildAnimalComponent.class})
+    public void onFrob(ActivateEvent event, EntityRef entityRef) {
+        event.consume();
+        AnimalInteractionScreen animalInteractionScreen = nuiManager.pushScreen("WildAnimalsGenome:animalInteractionScreen", AnimalInteractionScreen.class);
+        animalInteractionScreen.setAnimalEntity(entityRef);
     }
 
     private List<EntityRef> findNearbyAnimals(LocationComponent actorLocationComponent, float searchRadius, String animalName) {
