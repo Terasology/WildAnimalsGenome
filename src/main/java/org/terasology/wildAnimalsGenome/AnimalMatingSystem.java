@@ -23,6 +23,9 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.genome.breed.BreedingAlgorithm;
+import org.terasology.genome.breed.FavourableWeightedBreedingAlgorithm;
+import org.terasology.genome.system.GenomeManager;
 import org.terasology.logic.characters.AliveCharacterComponent;
 import org.terasology.logic.delay.DelayManager;
 import org.terasology.logic.delay.DelayedActionTriggeredEvent;
@@ -31,6 +34,7 @@ import org.terasology.registry.In;
 import org.terasology.wildAnimals.component.WildAnimalComponent;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
 import org.terasology.wildAnimalsGenome.event.MatingActivatedEvent;
+import org.terasology.wildAnimalsGenome.event.MatingInitiatedEvent;
 import org.terasology.wildAnimalsGenome.event.MatingProposalEvent;
 import org.terasology.wildAnimalsGenome.event.MatingProposalResponseEvent;
 
@@ -52,11 +56,13 @@ public class AnimalMatingSystem extends BaseComponentSystem {
 
     @ReceiveEvent(components = {WildAnimalComponent.class})
     public void onMatingSearch(DelayedActionTriggeredEvent event, EntityRef entityRef, MatingComponent matingComponent) {
-        if (matingComponent.readyToMate) {
+        if (matingComponent.readyToMate && !matingComponent.inMatingProcess) {
             List<EntityRef> nearbyAnimals = findNearbyAnimals(entityRef.getComponent(LocationComponent.class), searchRadius, entityRef.getComponent(WildAnimalComponent.class).name);
             List<EntityRef> animals = filterMatingActivatedAnimals(nearbyAnimals);
             for (EntityRef animal : animals) {
-                animal.send(new MatingProposalEvent(entityRef));
+                if (!animal.equals(entityRef)) {
+                    animal.send(new MatingProposalEvent(entityRef));
+                }
             }
             delayManager.addDelayedAction(entityRef, MATING_SEARCH_ID, matingSearchInterval);
         }
@@ -71,12 +77,19 @@ public class AnimalMatingSystem extends BaseComponentSystem {
     public void onMatingProposalReceived(MatingProposalEvent event, EntityRef entityRef, MatingComponent matingComponent) {
         if (matingComponent.readyToMate && !matingComponent.inMatingProcess) {
             event.instigator.send(new MatingProposalResponseEvent(entityRef, true));
+            matingComponent.inMatingProcess = true;
+            entityRef.saveComponent(matingComponent);
         }
     }
 
     @ReceiveEvent
     public void onMatingResponseReceived(MatingProposalResponseEvent event, EntityRef entityRef, MatingComponent matingComponent) {
-        
+        if (matingComponent.readyToMate && !matingComponent.inMatingProcess) {
+            matingComponent.inMatingProcess = true;
+            entityRef.saveComponent(matingComponent);
+            entityRef.send(new MatingInitiatedEvent(entityRef, event.instigator));
+            logger.info("Mating between " + entityRef.getId() + " and " + event.instigator.getId());
+        }
     }
 
     private List<EntityRef> findNearbyAnimals(LocationComponent actorLocationComponent, float searchRadius, String animalName) {

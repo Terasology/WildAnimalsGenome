@@ -43,7 +43,6 @@ public class AnimalInteractionScreen extends BaseInteractionScreen {
             }
         } else {
             MatingComponent matingComponent = new MatingComponent();
-            matingComponent.readyToMate = false;
             interactionTarget.addComponent(matingComponent);
             mateButton.setText("Activate mating");
         }
