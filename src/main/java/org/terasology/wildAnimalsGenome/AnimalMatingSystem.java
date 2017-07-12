@@ -18,17 +18,19 @@ package org.terasology.wildAnimalsGenome;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terasology.advancedBehaviors.UpdateBehaviorEvent;
+import org.terasology.assets.management.AssetManager;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.EventPriority;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.genome.breed.BreedingAlgorithm;
-import org.terasology.genome.breed.FavourableWeightedBreedingAlgorithm;
+import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.genome.component.GenomeComponent;
 import org.terasology.genome.events.OnBreed;
-import org.terasology.genome.system.GenomeManager;
+import org.terasology.logic.behavior.BehaviorComponent;
+import org.terasology.logic.behavior.asset.BehaviorTree;
 import org.terasology.logic.characters.AliveCharacterComponent;
 import org.terasology.logic.characters.CharacterTeleportEvent;
 import org.terasology.logic.common.ActivateEvent;
@@ -36,34 +38,62 @@ import org.terasology.logic.delay.DelayManager;
 import org.terasology.logic.delay.DelayedActionTriggeredEvent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.geom.Vector3f;
+import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.registry.In;
 import org.terasology.rendering.nui.NUIManager;
 import org.terasology.wildAnimals.component.WildAnimalComponent;
+import org.terasology.wildAnimalsGenome.component.MatingBehaviorComponent;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
-import org.terasology.wildAnimalsGenome.event.MatingActivatedEvent;
-import org.terasology.wildAnimalsGenome.event.MatingInitiatedEvent;
-import org.terasology.wildAnimalsGenome.event.MatingProposalEvent;
-import org.terasology.wildAnimalsGenome.event.MatingProposalResponseEvent;
+import org.terasology.wildAnimalsGenome.event.*;
 import org.terasology.wildAnimalsGenome.ui.AnimalInteractionScreen;
 
 import java.util.List;
 
 @RegisterSystem
-public class AnimalMatingSystem extends BaseComponentSystem {
+public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSubscriberSystem {
     @In
     private DelayManager delayManager;
-
     @In
     private EntityManager entityManager;
-
     @In
     private NUIManager nuiManager;
+    @In
+    private AssetManager assetManager;
 
     private long matingSearchInterval = 1000L;
     private float searchRadius = 10f;
+    private float maxDistanceSquared = 1.8f;
     private static final String MATING_SEARCH_ID = "WildAnimalsGenome:MatingSearch";
 
     private static final Logger logger = LoggerFactory.getLogger(AnimalMatingSystem.class);
+
+    @Override
+    public void update(float delta) {
+        BehaviorTree mateBT = assetManager.getAsset("WildAnimalsGenome:mate", BehaviorTree.class).get();
+        for (EntityRef entityRef : entityManager.getEntitiesWith(MatingBehaviorComponent.class)) {
+            MatingComponent matingComponent = entityRef.getComponent(MatingComponent.class);
+            if (entityRef.getComponent(BehaviorComponent.class).tree != mateBT) {
+                entityRef.removeComponent(MatingBehaviorComponent.class);
+                if (matingComponent.matingEntity != EntityRef.NULL && matingComponent.matingEntity.hasComponent(MatingBehaviorComponent.class)) {
+                    matingComponent.matingEntity.removeComponent(MatingBehaviorComponent.class);
+                    matingComponent.matingEntity.send(new UpdateBehaviorEvent());
+                }
+                entityRef.send(new UpdateBehaviorEvent());
+            }
+
+            if (matingComponent.inMatingProcess) {
+                MinionMoveComponent minionMoveComponent = entityRef.getComponent(MinionMoveComponent.class);
+                if (minionMoveComponent.target != null) {
+                    Vector3f target = new Vector3f(minionMoveComponent.target.getX(), minionMoveComponent.target.getY(), minionMoveComponent.target.getZ());
+                    if (entityRef.getComponent(LocationComponent.class).getWorldPosition().distanceSquared(target) <= maxDistanceSquared) {
+                        matingComponent.reachedTarget = true;
+                        entityRef.saveComponent(matingComponent);
+                        entityRef.send(new MatingTargetReachedEvent());
+                    }
+                }
+            }
+        }
+    }
 
     @ReceiveEvent(components = {WildAnimalComponent.class})
     public void onMatingSearch(DelayedActionTriggeredEvent event, EntityRef entityRef, MatingComponent matingComponent) {
@@ -72,6 +102,9 @@ public class AnimalMatingSystem extends BaseComponentSystem {
             List<EntityRef> animals = filterMatingActivatedAnimals(nearbyAnimals);
             for (EntityRef animal : animals) {
                 if (!animal.equals(entityRef)) {
+                    matingComponent.inMatingProcess = true;
+                    entityRef.saveComponent(matingComponent);
+                    entityRef.addOrSaveComponent(new MatingBehaviorComponent());
                     animal.send(new MatingProposalEvent(entityRef));
                 }
             }
@@ -89,17 +122,36 @@ public class AnimalMatingSystem extends BaseComponentSystem {
         if (matingComponent.readyToMate && !matingComponent.inMatingProcess) {
             event.instigator.send(new MatingProposalResponseEvent(entityRef, true));
             matingComponent.inMatingProcess = true;
+            matingComponent.matingEntity = event.instigator;
             entityRef.saveComponent(matingComponent);
+            entityRef.addComponent(new MatingBehaviorComponent());
+
+            MinionMoveComponent actorMinionMoveComponent = entityRef.getComponent(MinionMoveComponent.class);
+            actorMinionMoveComponent.target = null;
+
+            entityRef.send(new UpdateBehaviorEvent());
+        } else {
+            event.instigator.send(new MatingProposalResponseEvent(entityRef, false));
         }
     }
 
     @ReceiveEvent
     public void onMatingResponseReceived(MatingProposalResponseEvent event, EntityRef entityRef, MatingComponent matingComponent) {
-        if (matingComponent.readyToMate && !matingComponent.inMatingProcess) {
-            matingComponent.inMatingProcess = true;
-            entityRef.saveComponent(matingComponent);
-            entityRef.send(new MatingInitiatedEvent(entityRef, event.instigator));
+        if (event.accepted && matingComponent.readyToMate) {
+            matingComponent.matingEntity = event.instigator;
+            entityRef.send(new UpdateBehaviorEvent());
             logger.info("Mating between " + entityRef.getId() + " and " + event.instigator.getId());
+        } else {
+            matingComponent.inMatingProcess = false;
+        }
+        entityRef.saveComponent(matingComponent);
+    }
+
+    @ReceiveEvent
+    public void onMatingTargetReached(MatingTargetReachedEvent event, EntityRef entityRef, MatingComponent matingComponent) {
+        EntityRef matingEntity = matingComponent.matingEntity;
+        if (matingEntity.getComponent(MatingComponent.class).reachedTarget) {
+            entityRef.send(new MatingInitiatedEvent(entityRef, matingEntity));
         }
     }
 
@@ -114,6 +166,43 @@ public class AnimalMatingSystem extends BaseComponentSystem {
         offset.scale(2);
         spawnPos.add(offset);
         event.getOffspring().send(new CharacterTeleportEvent(spawnPos));
+        event.getOffspring().send(new UpdateBehaviorEvent());
+
+        cleanupAfterMating(event.getOrganism1(), event.getOrganism2());
+    }
+
+    @ReceiveEvent(components = {MatingBehaviorComponent.class})
+    public void onUpdateBehaviorMate(UpdateBehaviorEvent event, EntityRef entityRef, MatingComponent matingComponent) {
+        if (matingComponent.readyToMate && matingComponent.inMatingProcess) {
+            event.consume();
+            BehaviorComponent behaviorComponent = entityRef.getComponent(BehaviorComponent.class);
+            behaviorComponent.tree = assetManager.getAsset("WildAnimalsGenome:mate", BehaviorTree.class).get();
+            logger.info("Changed behavior to mate");
+            entityRef.saveComponent(behaviorComponent);
+        }
+    }
+
+    private void cleanupAfterMating(EntityRef animal1, EntityRef animal2) {
+        animal1.removeComponent(MatingBehaviorComponent.class);
+        animal2.removeComponent(MatingBehaviorComponent.class);
+        animal1.send(new UpdateBehaviorEvent());
+        animal2.send(new UpdateBehaviorEvent());
+
+        MatingComponent matingComponent1 = animal1.getComponent(MatingComponent.class);
+        matingComponent1.readyToMate = false;
+        matingComponent1.inMatingProcess = false;
+        matingComponent1.matingEntity = EntityRef.NULL;
+        matingComponent1.target = null;
+        matingComponent1.reachedTarget = false;
+        animal1.saveComponent(matingComponent1);
+
+        MatingComponent matingComponent2 = animal2.getComponent(MatingComponent.class);
+        matingComponent2.readyToMate = false;
+        matingComponent2.inMatingProcess = false;
+        matingComponent2.matingEntity = EntityRef.NULL;
+        matingComponent2.target = null;
+        matingComponent2.reachedTarget = false;
+        animal2.saveComponent(matingComponent2);
     }
 
     @ReceiveEvent(priority = EventPriority.PRIORITY_HIGH, components = {WildAnimalComponent.class})

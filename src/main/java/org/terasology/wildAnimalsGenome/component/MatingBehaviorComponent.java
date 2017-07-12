@@ -16,26 +16,6 @@
 package org.terasology.wildAnimalsGenome.component;
 
 import org.terasology.entitySystem.Component;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.math.geom.Vector3f;
-import org.terasology.network.Replicate;
 
-public class MatingComponent implements Component {
-    @Replicate
-    public boolean matingDisabled = false;
-
-    @Replicate
-    public boolean readyToMate = false;
-
-    @Replicate
-    public boolean inMatingProcess = false;
-
-    @Replicate
-    public EntityRef matingEntity;
-
-    @Replicate
-    public Vector3f target;
-
-    @Replicate
-    public boolean reachedTarget = false;
+public class MatingBehaviorComponent implements Component {
 }
