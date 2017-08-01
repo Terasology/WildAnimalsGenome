@@ -23,6 +23,10 @@ import org.terasology.math.geom.Vector3f;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
 
+/**
+ * Updates the target field in the {@link MinionMoveComponent} of the animal's mate with the target set in the current
+ * animal's {@link MinionMoveComponent}
+ */
 public class SetMatingTargetBlockNode extends Node {
     @Override
     public Task createTask() {

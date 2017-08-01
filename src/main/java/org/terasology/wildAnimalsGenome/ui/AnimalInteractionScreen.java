@@ -15,14 +15,15 @@
  */
 package org.terasology.wildAnimalsGenome.ui;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.rendering.nui.CoreScreenLayer;
 import org.terasology.rendering.nui.widgets.UIButton;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
 import org.terasology.wildAnimalsGenome.event.MatingActivatedEvent;
 
+/**
+ * System that handles the interaction screen for wild animals.
+ */
 public class AnimalInteractionScreen extends CoreScreenLayer {
 
     private UIButton mateButton;

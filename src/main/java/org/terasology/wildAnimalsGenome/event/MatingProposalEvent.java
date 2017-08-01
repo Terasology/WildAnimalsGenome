@@ -18,7 +18,13 @@ package org.terasology.wildAnimalsGenome.event;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.Event;
 
+/**
+ * This event is sent when an animal sends a MatingProposal to a potential mate.
+ */
 public class MatingProposalEvent implements Event {
+    /**
+     * The animal sending the request.
+     */
     public EntityRef instigator;
 
     public MatingProposalEvent(EntityRef instigator) {

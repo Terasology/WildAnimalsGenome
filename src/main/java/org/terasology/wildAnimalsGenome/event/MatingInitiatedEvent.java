@@ -19,6 +19,9 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.Event;
 import org.terasology.network.Replicate;
 
+/**
+ * This event is sent when mating is to be initiated, after both animals reach their mating target block.
+ */
 public class MatingInitiatedEvent implements Event {
     @Replicate
     public EntityRef animal1;

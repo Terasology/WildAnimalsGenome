@@ -19,10 +19,19 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.Event;
 import org.terasology.network.Replicate;
 
+/**
+ * This event is sent when an animal responds to a {@link MatingProposalEvent}.
+ */
 public class MatingProposalResponseEvent implements Event {
+    /**
+     * The animal sending the response.
+     */
     @Replicate
     public EntityRef instigator;
 
+    /**
+     * Whether the mating request has been accepted or not.
+     */
     @Replicate
     public boolean accepted;
 

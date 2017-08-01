@@ -17,5 +17,8 @@ package org.terasology.wildAnimalsGenome.event;
 
 import org.terasology.entitySystem.event.Event;
 
+/**
+ * This event is sent when an animal reaches its mating target block.
+ */
 public class MatingTargetReachedEvent implements Event {
 }

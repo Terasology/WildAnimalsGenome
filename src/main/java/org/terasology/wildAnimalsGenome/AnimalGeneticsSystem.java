@@ -16,8 +16,6 @@
 package org.terasology.wildAnimalsGenome;
 
 import com.google.common.base.Function;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
@@ -38,6 +36,9 @@ import org.terasology.world.WorldProvider;
 
 import javax.annotation.Nullable;
 
+/**
+ * This system handles the integration of Genome with the mating system.
+ */
 @RegisterSystem
 public class AnimalGeneticsSystem extends BaseComponentSystem {
     @In
@@ -49,7 +50,6 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
     @In
     private WorldProvider worldProvider;
 
-    private static final Logger logger = LoggerFactory.getLogger(AnimalGeneticsSystem.class);
     private BreedingAlgorithm breedingAlgorithm;
 
     private static final String genomeRegistryPrefix = "WildAnimals:";
@@ -59,8 +59,16 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
         breedingAlgorithm = new FavourableWeightedBreedingAlgorithm(0, 0.6f);
     }
 
+    /**
+     * Encodes the properties into genes dynamically and sends a {@link OnBreed} event.
+     *
+     * @param event
+     * @param entityRef
+     * @param matingComponent
+     */
     @ReceiveEvent
     public void onMatingStart(MatingInitiatedEvent event, EntityRef entityRef, MatingComponent matingComponent) {
+        // Build a unique genomeID for insertion into the registry.
         String genomeID = genomeRegistryPrefix + event.animal1.getId() + ":" + event.animal2.getId();
         addPropertyMap(event.animal1, event.animal2, genomeID);
 
@@ -96,6 +104,13 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
         entityRef.send(new OnBreed(event.animal1, event.animal2, offspring));
     }
 
+    /**
+     * Registers properties with a unique ID to the genomeRegistry.
+     * 
+     * @param animal1
+     * @param animal2
+     * @param genomeID
+     */
     private void addPropertyMap(EntityRef animal1, EntityRef animal2, String genomeID) {
         SeedBasedGenomeMap genomeMap = new SeedBasedGenomeMap(worldProvider.getSeed().hashCode());
         genomeMap.addSeedBasedProperty("speedMultiplier", 0, 0, 1, Float.class,

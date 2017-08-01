@@ -49,6 +49,9 @@ import org.terasology.wildAnimalsGenome.ui.AnimalInteractionScreen;
 
 import java.util.List;
 
+/**
+ * This system handles the mating search, requests/responses and updating the behavior,
+ */
 @RegisterSystem
 public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSubscriberSystem {
     @In
@@ -60,8 +63,19 @@ public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSub
     @In
     private AssetManager assetManager;
 
+    /**
+     * Delay between consecutive searches for a mate.
+     */
     private long matingSearchInterval = 1000L;
+
+    /**
+     * Radius within which to look for a mate.
+     */
     private float searchRadius = 10f;
+
+    /**
+     * Squared distance below which the animal is said to have "reached" its target mating block.
+     */
     private float maxDistanceSquared = 1.8f;
     private static final String MATING_SEARCH_ID = "WildAnimalsGenome:MatingSearch";
 
@@ -95,6 +109,9 @@ public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSub
         }
     }
 
+    /**
+     * Finds nearby potential mates and sends a {@link MatingProposalEvent}.
+     */
     @ReceiveEvent(components = {WildAnimalComponent.class})
     public void onMatingSearch(DelayedActionTriggeredEvent event, EntityRef entityRef, MatingComponent matingComponent) {
         if (matingComponent.readyToMate && !matingComponent.inMatingProcess) {
@@ -112,11 +129,19 @@ public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSub
         }
     }
 
+    /**
+     * Schedules a {@link DelayedActionTriggeredEvent} to search for potential mates when a {@link MatingActivatedEvent}
+     * is received.
+     */
     @ReceiveEvent(components = {WildAnimalComponent.class})
     public void onMatingActivated(MatingActivatedEvent event, EntityRef entityRef, MatingComponent matingComponent) {
         delayManager.addDelayedAction(entityRef, MATING_SEARCH_ID, matingSearchInterval);
     }
 
+    /**
+     * Responds to a mating request with a {@link MatingProposalResponseEvent}, accepting if the conditions are met.
+     * Also sends an {@link UpdateBehaviorEvent} to update the behavior to "mate".
+     */
     @ReceiveEvent
     public void onMatingProposalReceived(MatingProposalEvent event, EntityRef entityRef, MatingComponent matingComponent) {
         if (matingComponent.readyToMate && !matingComponent.inMatingProcess) {
@@ -135,6 +160,9 @@ public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSub
         }
     }
 
+    /**
+     * Updates behavior to "mate" if an accepted {@link MatingProposalResponseEvent} is received.
+     */
     @ReceiveEvent
     public void onMatingResponseReceived(MatingProposalResponseEvent event, EntityRef entityRef, MatingComponent matingComponent) {
         if (event.accepted && matingComponent.readyToMate) {
@@ -147,6 +175,9 @@ public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSub
         entityRef.saveComponent(matingComponent);
     }
 
+    /**
+     * Sends a {@link MatingInitiatedEvent} when the entity reaches its mating target block.
+     */
     @ReceiveEvent
     public void onMatingTargetReached(MatingTargetReachedEvent event, EntityRef entityRef, MatingComponent matingComponent) {
         EntityRef matingEntity = matingComponent.matingEntity;
@@ -155,6 +186,9 @@ public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSub
         }
     }
 
+    /**
+     * Spawns the offspring after breeding the parent animals and receiving an {@link OnBreed} event.
+     */
     @ReceiveEvent
     public void onAnimalsBred(OnBreed event, EntityRef entityRef, WildAnimalComponent wildAnimalComponent) {
         logger.info(event.getOrganism1().getComponent(GenomeComponent.class).genes);
@@ -171,6 +205,9 @@ public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSub
         cleanupAfterMating(event.getOrganism1(), event.getOrganism2());
     }
 
+    /**
+     * Changes behavior to "mate" on receiving an {@link UpdateBehaviorEvent}.
+     */
     @ReceiveEvent(components = {MatingBehaviorComponent.class})
     public void onUpdateBehaviorMate(UpdateBehaviorEvent event, EntityRef entityRef, MatingComponent matingComponent) {
         if (matingComponent.readyToMate && matingComponent.inMatingProcess) {
@@ -182,6 +219,12 @@ public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSub
         }
     }
 
+    /**
+     * After mating is complete, resets the variables that were changed in the {@link MatingComponent} during mating.
+     *
+     * @param animal1 The first parent.
+     * @param animal2 The second parent.
+     */
     private void cleanupAfterMating(EntityRef animal1, EntityRef animal2) {
         animal1.removeComponent(MatingBehaviorComponent.class);
         animal2.removeComponent(MatingBehaviorComponent.class);
@@ -189,22 +232,19 @@ public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSub
         animal2.send(new UpdateBehaviorEvent());
 
         MatingComponent matingComponent1 = animal1.getComponent(MatingComponent.class);
-        matingComponent1.readyToMate = false;
-        matingComponent1.inMatingProcess = false;
-        matingComponent1.matingEntity = EntityRef.NULL;
-        matingComponent1.target = null;
-        matingComponent1.reachedTarget = false;
-        animal1.saveComponent(matingComponent1);
+        MatingComponent matingComponent1New = new MatingComponent();
+        matingComponent1New.matingDisabled = matingComponent1.matingDisabled;
+        animal1.saveComponent(matingComponent1New);
 
         MatingComponent matingComponent2 = animal2.getComponent(MatingComponent.class);
-        matingComponent2.readyToMate = false;
-        matingComponent2.inMatingProcess = false;
-        matingComponent2.matingEntity = EntityRef.NULL;
-        matingComponent2.target = null;
-        matingComponent2.reachedTarget = false;
-        animal2.saveComponent(matingComponent2);
+        MatingComponent matingComponent2New = new MatingComponent();
+        matingComponent2New.matingDisabled = matingComponent2.matingDisabled;
+        animal2.saveComponent(matingComponent2New);
     }
 
+    /**
+     * Opens the {@link AnimalInteractionScreen} on activating an animal.
+     */
     @ReceiveEvent(priority = EventPriority.PRIORITY_HIGH, components = {WildAnimalComponent.class})
     public void onFrob(ActivateEvent event, EntityRef entityRef) {
         event.consume();
@@ -212,6 +252,14 @@ public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSub
         animalInteractionScreen.setAnimalEntity(entityRef);
     }
 
+    /**
+     * Find nearby animals within a specified range.
+     *
+     * @param actorLocationComponent {@link LocationComponent} of the animal.
+     * @param searchRadius           The radius within which to search for.
+     * @param animalName             The name of the animal which is being searched.
+     * @return A list of {@link EntityRef} of the nearby animals.
+     */
     private List<EntityRef> findNearbyAnimals(LocationComponent actorLocationComponent, float searchRadius, String animalName) {
         List<EntityRef> animalsWithinRange = Lists.newArrayList();
         float maxDistanceSquared = searchRadius * searchRadius;
@@ -231,6 +279,12 @@ public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSub
         return animalsWithinRange;
     }
 
+    /**
+     * Filters the animals which have been activated for mating from a list of all potential mates.
+     *
+     * @param allAnimals List of all potential mates.
+     * @return List of {@link EntityRef} of the filtered potential mates.
+     */
     private List<EntityRef> filterMatingActivatedAnimals(List<EntityRef> allAnimals) {
         List<EntityRef> result = Lists.newArrayList();
         for (EntityRef animal : allAnimals) {

@@ -17,5 +17,8 @@ package org.terasology.wildAnimalsGenome.event;
 
 import org.terasology.entitySystem.event.Event;
 
+/**
+ * This event is sent when mating is activated.
+ */
 public class MatingActivatedEvent implements Event {
 }
