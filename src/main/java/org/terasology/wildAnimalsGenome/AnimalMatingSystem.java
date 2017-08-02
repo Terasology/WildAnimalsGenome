@@ -32,11 +32,13 @@ import org.terasology.genome.events.OnBreed;
 import org.terasology.logic.behavior.BehaviorComponent;
 import org.terasology.logic.behavior.asset.BehaviorTree;
 import org.terasology.logic.characters.AliveCharacterComponent;
+import org.terasology.logic.characters.CharacterComponent;
 import org.terasology.logic.characters.CharacterTeleportEvent;
 import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.delay.DelayManager;
 import org.terasology.logic.delay.DelayedActionTriggeredEvent;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.logic.players.LocalPlayer;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.registry.In;
@@ -62,6 +64,8 @@ public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSub
     private NUIManager nuiManager;
     @In
     private AssetManager assetManager;
+    @In
+    private LocalPlayer localPlayer;
 
     /**
      * Delay between consecutive searches for a mate.
@@ -243,13 +247,23 @@ public class AnimalMatingSystem extends BaseComponentSystem implements UpdateSub
     }
 
     /**
-     * Opens the {@link AnimalInteractionScreen} on activating an animal.
+     * Sends a {@link ActivateMatingScreenEvent} to the client activating an animal
      */
     @ReceiveEvent(priority = EventPriority.PRIORITY_HIGH, components = {WildAnimalComponent.class})
     public void onFrob(ActivateEvent event, EntityRef entityRef) {
+        event.getInstigator().send(new ActivateMatingScreenEvent(entityRef));
         event.consume();
-        AnimalInteractionScreen animalInteractionScreen = nuiManager.pushScreen("WildAnimalsGenome:animalInteractionScreen", AnimalInteractionScreen.class);
-        animalInteractionScreen.setAnimalEntity(entityRef);
+    }
+
+    /**
+     * Opens the {@link AnimalInteractionScreen} on activating an animal.
+     */
+    @ReceiveEvent
+    public void onActivateAnimalInteractionScreenEvent(ActivateMatingScreenEvent event, EntityRef entity, CharacterComponent component) {
+        if (entity.equals(localPlayer.getCharacterEntity())) {
+            AnimalInteractionScreen animalInteractionScreen = nuiManager.pushScreen("WildAnimalsGenome:animalInteractionScreen", AnimalInteractionScreen.class);
+            animalInteractionScreen.setAnimalEntity(event.getTargetEntity());
+        }
     }
 
     /**
