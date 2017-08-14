@@ -16,6 +16,8 @@
 package org.terasology.wildAnimalsGenome.ui;
 
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.logic.players.LocalPlayer;
+import org.terasology.registry.In;
 import org.terasology.rendering.nui.CoreScreenLayer;
 import org.terasology.rendering.nui.widgets.UIButton;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
@@ -26,6 +28,9 @@ import org.terasology.wildAnimalsGenome.event.MatingActivatedEvent;
  */
 public class AnimalInteractionScreen extends CoreScreenLayer {
 
+    @In
+    private LocalPlayer localPlayer;
+
     private UIButton mateButton;
     private EntityRef animalEntity;
 
@@ -35,11 +40,10 @@ public class AnimalInteractionScreen extends CoreScreenLayer {
         mateButton.subscribe(button -> {
             MatingComponent matingComponent = animalEntity.getComponent(MatingComponent.class);
             if (matingComponent.readyToMate) {
-                matingComponent.readyToMate = false;
+                localPlayer.getClientEntity().send(new MatingActivatedEvent(animalEntity, false));
                 mateButton.setText("Activate mating");
             } else {
-                matingComponent.readyToMate = true;
-                animalEntity.send(new MatingActivatedEvent());
+                localPlayer.getClientEntity().send(new MatingActivatedEvent(animalEntity, true));
                 mateButton.setText("Deactivate mating");
             }
         });

@@ -20,18 +20,19 @@ import org.terasology.entitySystem.event.Event;
 import org.terasology.network.Replicate;
 import org.terasology.network.ServerEvent;
 
-/**
- * This event is sent when mating is to be initiated, after both animals reach their mating target block.
- */
-public class MatingInitiatedEvent implements Event {
+@ServerEvent
+public class MatingCleanupEvent implements Event {
     @Replicate
     public EntityRef animal1;
 
     @Replicate
     public EntityRef animal2;
 
-    public MatingInitiatedEvent(EntityRef animal1, EntityRef animal2) {
+    public MatingCleanupEvent(EntityRef animal1, EntityRef animal2) {
         this.animal1 = animal1;
         this.animal2 = animal2;
+    }
+
+    public MatingCleanupEvent() {
     }
 }

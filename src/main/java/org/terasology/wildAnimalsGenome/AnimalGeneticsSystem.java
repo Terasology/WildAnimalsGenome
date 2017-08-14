@@ -29,6 +29,7 @@ import org.terasology.genome.component.GenomeComponent;
 import org.terasology.genome.events.OnBreed;
 import org.terasology.genome.genomeMap.SeedBasedGenomeMap;
 import org.terasology.logic.characters.CharacterMovementComponent;
+import org.terasology.logic.players.LocalPlayer;
 import org.terasology.registry.In;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
 import org.terasology.wildAnimalsGenome.event.MatingInitiatedEvent;
@@ -43,12 +44,12 @@ import javax.annotation.Nullable;
 public class AnimalGeneticsSystem extends BaseComponentSystem {
     @In
     private GenomeRegistry genomeRegistry;
-
     @In
     private EntityManager entityManager;
-
     @In
     private WorldProvider worldProvider;
+    @In
+    private LocalPlayer localPlayer;
 
     private BreedingAlgorithm breedingAlgorithm;
 

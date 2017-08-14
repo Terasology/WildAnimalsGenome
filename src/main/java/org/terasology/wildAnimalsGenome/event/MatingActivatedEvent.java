@@ -15,10 +15,27 @@
  */
 package org.terasology.wildAnimalsGenome.event;
 
+import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.Event;
+import org.terasology.network.Replicate;
+import org.terasology.network.ServerEvent;
 
 /**
  * This event is sent when mating is activated.
  */
+@ServerEvent
 public class MatingActivatedEvent implements Event {
+    @Replicate
+    public EntityRef entityRef;
+
+    @Replicate
+    public boolean isActivated;
+
+    public MatingActivatedEvent(EntityRef entityRef, boolean isActivated) {
+        this.entityRef = entityRef;
+        this.isActivated = isActivated;
+    }
+
+    public MatingActivatedEvent() {
+    }
 }
