@@ -28,7 +28,6 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
-import org.terasology.genome.component.GenomeComponent;
 import org.terasology.genome.events.OnBreed;
 import org.terasology.logic.behavior.BehaviorComponent;
 import org.terasology.logic.behavior.asset.BehaviorTree;
@@ -38,7 +37,6 @@ import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.delay.DelayManager;
 import org.terasology.logic.delay.DelayedActionTriggeredEvent;
 import org.terasology.logic.location.LocationComponent;
-import org.terasology.logic.players.LocalPlayer;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.registry.In;
@@ -64,8 +62,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
     private NUIManager nuiManager;
     @In
     private AssetManager assetManager;
-    @In
-    private LocalPlayer localPlayer;
 
     /**
      * Delay between consecutive searches for a mate.
@@ -91,24 +87,21 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
         for (EntityRef entityRef : entityManager.getEntitiesWith(MatingBehaviorComponent.class)) {
             MatingComponent matingComponent = entityRef.getComponent(MatingComponent.class);
             if (entityRef.getComponent(BehaviorComponent.class).tree != mateBT) {
-                entityRef.removeComponent(MatingBehaviorComponent.class);
                 if (matingComponent.matingEntity != EntityRef.NULL && matingComponent.matingEntity.hasComponent(MatingBehaviorComponent.class)) {
                     matingComponent.matingEntity.removeComponent(MatingBehaviorComponent.class);
                     matingComponent.matingEntity.send(new UpdateBehaviorEvent());
+                    entityRef.send(new MatingCleanupEvent(entityRef, matingComponent.matingEntity));
                 }
-                entityRef.send(new UpdateBehaviorEvent());
             }
 
-//            logger.info(String.valueOf(entityRef.getId()) + " - " + matingComponent.inMatingProcess);
             if (matingComponent.inMatingProcess) {
                 MinionMoveComponent minionMoveComponent = entityRef.getComponent(MinionMoveComponent.class);
                 if (minionMoveComponent.target != null) {
                     Vector3f target = new Vector3f(minionMoveComponent.target.getX(), minionMoveComponent.target.getY(), minionMoveComponent.target.getZ());
-//                    logger.info(String.valueOf(entityRef.getComponent(LocationComponent.class).getWorldPosition().distanceSquared(target)));
                     if (entityRef.getComponent(LocationComponent.class).getWorldPosition().distanceSquared(target) <= maxDistanceSquared) {
                         matingComponent.reachedTarget = true;
                         entityRef.saveComponent(matingComponent);
-                        localPlayer.getCharacterEntity().send(new MatingTargetReachedEvent(entityRef));
+                        entityRef.send(new MatingTargetReachedEvent(entityRef));
                     }
                 }
             }
@@ -120,12 +113,11 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
      */
     @ReceiveEvent(components = {MatingBehaviorComponent.class})
     public void onUpdateBehaviorMate(UpdateBehaviorEvent event, EntityRef entityRef, MatingComponent matingComponent) {
-        logger.info(String.valueOf(entityRef.hasComponent(MatingBehaviorComponent.class)) + " " + matingComponent.readyToMate + " " + matingComponent.inMatingProcess);
         if (matingComponent.readyToMate && matingComponent.inMatingProcess) {
             event.consume();
             BehaviorComponent behaviorComponent = entityRef.getComponent(BehaviorComponent.class);
             behaviorComponent.tree = assetManager.getAsset("WildAnimalsGenome:mate", BehaviorTree.class).get();
-            logger.info("Changed behavior to mate");
+            logger.info(entityRef.getId() + " - Changed behavior to mate");
             entityRef.saveComponent(behaviorComponent);
         }
     }
@@ -147,7 +139,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
                         animalEntity.saveComponent(matingComponent);
                         animalEntity.addOrSaveComponent(new MatingBehaviorComponent());
                         clientEntity.send(new MatingProposalEvent(animalEntity, animal));
-                        logger.info(animalEntity.getId() + " - " + animalEntity.getComponent(MatingBehaviorComponent.class));
                     }
                 }
                 delayManager.addDelayedAction(clientEntity, MATING_SEARCH_ID + ":" + animalEntity.getId(), matingSearchInterval);
@@ -182,8 +173,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
     public void onMatingProposalReceived(MatingProposalEvent event, EntityRef entityRef) {
         MatingComponent matingComponent = event.target.getComponent(MatingComponent.class);
         if (matingComponent.readyToMate && !matingComponent.inMatingProcess) {
-            logger.info("Mating proposal received by " + event.target.getId());
-            entityRef.send(new MatingProposalResponseEvent(event.instigator, event.target, true));
             matingComponent.inMatingProcess = true;
             matingComponent.matingEntity = event.instigator;
             event.target.saveComponent(matingComponent);
@@ -192,10 +181,10 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
             MinionMoveComponent actorMinionMoveComponent = event.target.getComponent(MinionMoveComponent.class);
             actorMinionMoveComponent.target = null;
 
-            logger.info(event.target.getId() + " - " + event.target.getComponent(MatingBehaviorComponent.class));
             event.target.send(new UpdateBehaviorEvent());
+            entityRef.send(new MatingProposalResponseEvent(event.target, event.instigator, true));
         } else {
-            entityRef.send(new MatingProposalResponseEvent(event.instigator, event.target, false));
+            entityRef.send(new MatingProposalResponseEvent(event.target, event.instigator, false));
         }
     }
 
@@ -207,7 +196,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
         MatingComponent matingComponent = event.target.getComponent(MatingComponent.class);
         if (event.accepted && matingComponent.readyToMate) {
             matingComponent.matingEntity = event.instigator;
-            logger.info(event.target.getId() + " - " + event.target.getComponent(MatingBehaviorComponent.class));
             event.target.send(new UpdateBehaviorEvent());
             logger.info("Mating between " + event.target.getId() + " and " + event.instigator.getId());
         } else {
@@ -224,9 +212,21 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
         MatingComponent matingComponent = event.animalEntity.getComponent(MatingComponent.class);
         EntityRef matingEntity = matingComponent.matingEntity;
         if (matingEntity.getComponent(MatingComponent.class).reachedTarget) {
-            logger.info("Mating target reached by " + event.animalEntity.getId());
             event.animalEntity.send(new MatingInitiatedEvent(event.animalEntity, matingEntity));
         }
+    }
+
+    @ReceiveEvent
+    public void onOffspringCreated(OnBreed event, EntityRef entityRef) {
+        LocationComponent locationComponent = entityRef.getComponent(LocationComponent.class);
+        Vector3f spawnPos = locationComponent.getWorldPosition();
+        Vector3f offset = new Vector3f(locationComponent.getWorldDirection());
+        offset.scale(2);
+        spawnPos.add(offset);
+        event.getOffspring().send(new CharacterTeleportEvent(spawnPos));
+        event.getOffspring().send(new UpdateBehaviorEvent());
+
+        entityRef.send(new MatingCleanupEvent(event.getOrganism1(), event.getOrganism2()));
     }
 
     /**
@@ -234,7 +234,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
      */
     @ReceiveEvent
     public void cleanupAfterMating(MatingCleanupEvent event, EntityRef entityRef) {
-        logger.info("mating cleanup");
         EntityRef animal1 = event.animal1;
         EntityRef animal2 = event.animal2;
         animal1.removeComponent(MatingBehaviorComponent.class);
@@ -306,6 +305,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
     }
 
     private Long getEntityIDFromString(String delayEventID) {
-        return Long.parseLong(delayEventID.substring(delayEventID.indexOf(':', delayEventID.indexOf(':')+1) + 1));
+        return Long.parseLong(delayEventID.substring(delayEventID.indexOf(':', delayEventID.indexOf(':') + 1) + 1));
     }
 }

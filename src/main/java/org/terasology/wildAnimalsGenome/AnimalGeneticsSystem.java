@@ -20,6 +20,7 @@ import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
+import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.genome.GenomeDefinition;
 import org.terasology.genome.GenomeRegistry;
@@ -29,7 +30,6 @@ import org.terasology.genome.component.GenomeComponent;
 import org.terasology.genome.events.OnBreed;
 import org.terasology.genome.genomeMap.SeedBasedGenomeMap;
 import org.terasology.logic.characters.CharacterMovementComponent;
-import org.terasology.logic.players.LocalPlayer;
 import org.terasology.registry.In;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
 import org.terasology.wildAnimalsGenome.event.MatingInitiatedEvent;
@@ -40,7 +40,7 @@ import javax.annotation.Nullable;
 /**
  * This system handles the integration of Genome with the mating system.
  */
-@RegisterSystem
+@RegisterSystem(RegisterMode.AUTHORITY)
 public class AnimalGeneticsSystem extends BaseComponentSystem {
     @In
     private GenomeRegistry genomeRegistry;
@@ -48,8 +48,6 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
     private EntityManager entityManager;
     @In
     private WorldProvider worldProvider;
-    @In
-    private LocalPlayer localPlayer;
 
     private BreedingAlgorithm breedingAlgorithm;
 
@@ -107,7 +105,7 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
 
     /**
      * Registers properties with a unique ID to the genomeRegistry.
-     * 
+     *
      * @param animal1
      * @param animal2
      * @param genomeID

@@ -17,22 +17,32 @@ package org.terasology.wildAnimalsGenome.event;
 
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.Event;
-import org.terasology.network.Replicate;
 import org.terasology.network.ServerEvent;
 
-/**
- * This event is sent when mating is to be initiated, after both animals reach their mating target block.
- */
 @ServerEvent
-public class MatingInitiatedEvent implements Event {
-    @Replicate
-    public EntityRef animal1;
+public class OffspringCreatedEvent implements Event {
+    private EntityRef organism1;
+    private EntityRef organism2;
+    private EntityRef offspring;
 
-    @Replicate
-    public EntityRef animal2;
+    public OffspringCreatedEvent() {
+    }
 
-    public MatingInitiatedEvent(EntityRef animal1, EntityRef animal2) {
-        this.animal1 = animal1;
-        this.animal2 = animal2;
+    public OffspringCreatedEvent(EntityRef organism1, EntityRef organism2, EntityRef offspring) {
+        this.organism1 = organism1;
+        this.organism2 = organism2;
+        this.offspring = offspring;
+    }
+
+    public EntityRef getOrganism1() {
+        return organism1;
+    }
+
+    public EntityRef getOrganism2() {
+        return organism2;
+    }
+
+    public EntityRef getOffspring() {
+        return offspring;
     }
 }
