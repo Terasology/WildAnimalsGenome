@@ -86,7 +86,7 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
         BehaviorTree mateBT = assetManager.getAsset("WildAnimalsGenome:mate", BehaviorTree.class).get();
         for (EntityRef entityRef : entityManager.getEntitiesWith(MatingBehaviorComponent.class)) {
             MatingComponent matingComponent = entityRef.getComponent(MatingComponent.class);
-            if (entityRef.getComponent(BehaviorComponent.class).tree != mateBT) {
+            if (entityRef.hasComponent(BehaviorComponent.class) && entityRef.getComponent(BehaviorComponent.class).tree != mateBT) {
                 if (matingComponent.matingEntity != EntityRef.NULL && matingComponent.matingEntity.hasComponent(MatingBehaviorComponent.class)) {
                     matingComponent.matingEntity.removeComponent(MatingBehaviorComponent.class);
                     matingComponent.matingEntity.send(new UpdateBehaviorEvent());
