@@ -1,0 +1,18 @@
+{
+  dynamic: [
+    {
+      sequence: [
+        {
+          condition: {
+            componentPresent: "WildAnimalsGenome:MatingComponent",
+            values: ["V readyToMate == true", "V inMatingProcess == true"]
+          }
+        },
+        {
+          lookup: { tree: "WildAnimalsGenome:mate" }
+        }
+      ]
+    },
+    lookup: {tree: "Behaviors:critter"}
+  ]
+}
