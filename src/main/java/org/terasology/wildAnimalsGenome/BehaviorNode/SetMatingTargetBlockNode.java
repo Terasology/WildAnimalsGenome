@@ -16,9 +16,13 @@
 package org.terasology.wildAnimalsGenome.BehaviorNode;
 
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.logic.behavior.tree.Node;
-import org.terasology.logic.behavior.tree.Status;
-import org.terasology.logic.behavior.tree.Task;
+//import org.terasology.logic.behavior.tree.Node;
+//import org.terasology.logic.behavior.tree.Status;
+//import org.terasology.logic.behavior.tree.Task;
+import org.terasology.logic.behavior.BehaviorAction;
+import org.terasology.logic.behavior.core.Actor;
+import org.terasology.logic.behavior.core.BaseAction;
+import org.terasology.logic.behavior.core.BehaviorState;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
@@ -27,7 +31,7 @@ import org.terasology.wildAnimalsGenome.component.MatingComponent;
  * Updates the target field in the {@link MinionMoveComponent} of the animal's mate with the target set in the current
  * animal's {@link MinionMoveComponent}
  */
-public class SetMatingTargetBlockNode extends Node {
+/*public class SetMatingTargetBlockNode extends Node {
     @Override
     public Task createTask() {
         return new SetMatingTargetBlockTask(this);
@@ -78,5 +82,44 @@ public class SetMatingTargetBlockNode extends Node {
 
         }
     }
+}*/
+@BehaviorAction(name = "mate_target")
+public class SetMatingTargetBlockNode extends BaseAction {
+    @Override
+    public void construct(Actor actor) {
+        MatingComponent matingComponent = actor.getComponent(MatingComponent.class);
+        EntityRef matingEntity = matingComponent.matingEntity;
+        MatingComponent matingComponent1 = matingEntity.getComponent(MatingComponent.class);
+
+        MinionMoveComponent actorMoveComponent = actor.getComponent(MinionMoveComponent.class);
+        MinionMoveComponent matingEntityMoveComponent = matingEntity.getComponent(MinionMoveComponent.class);
+
+        if (actorMoveComponent.target != null) {
+            Vector3f actorTarget = actorMoveComponent.target;
+            matingEntityMoveComponent.target = new Vector3f(actorTarget);
+            matingEntityMoveComponent.target.add(1, 0, 0);
+            matingEntity.saveComponent(matingEntityMoveComponent);
+
+            matingComponent.target = new Vector3f(actorMoveComponent.target);
+            matingComponent1.target = new Vector3f(matingEntityMoveComponent.target);
+            actor.save(matingComponent);
+            matingEntity.saveComponent(matingComponent1);
+        }
+
+    }
+
+    @Override
+    public BehaviorState modify(Actor actor, BehaviorState behaviorState) {
+        MatingComponent matingComponent = actor.getComponent(MatingComponent.class);
+        EntityRef matingEntity = matingComponent.matingEntity;
+        MinionMoveComponent matingEntityMoveComponent = matingEntity.getComponent(MinionMoveComponent.class);
+
+        if (matingEntityMoveComponent.target != null) {
+            return BehaviorState.SUCCESS;
+        }
+        return BehaviorState.FAILURE;
+    }
+
 }
+
 

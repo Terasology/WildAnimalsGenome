@@ -8,6 +8,7 @@
             values: ["V readyToMate == true", "V inMatingProcess == true"]
           }
         },
+        mate_target,
         {
           lookup: { tree: "WildAnimalsGenome:mate" }
         }
