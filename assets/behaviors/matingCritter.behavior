@@ -1,19 +1,22 @@
 {
   dynamic: [
     {
-      sequence: [
-        {
-          condition: {
-            componentPresent: "WildAnimalsGenome:MatingComponent",
-            values: ["V readyToMate == true", "V inMatingProcess == true"]
+          guard: {
+            componentPresent: "WildAnimalsGenome:Mating",
+            values: ["V readyToMate == true", "V inMatingProcess == true"],
+            child: {
+              sequence: [
+                set_target_nearby_block,
+                set_mating_target_block,
+                {
+                  lookup: { tree: "WildAnimalsGenome:mate" }
+                }
+              ]
+            }
           }
-        },
-        mate_target,
-        {
-          lookup: { tree: "WildAnimalsGenome:mate" }
-        }
-      ]
     },
-    lookup: {tree: "Behaviors:critter"}
+    {
+      lookup: { tree: "Behaviors:critter" }
+    }
   ]
 }

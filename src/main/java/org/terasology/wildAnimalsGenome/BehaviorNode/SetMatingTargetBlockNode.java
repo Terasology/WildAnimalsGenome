@@ -83,7 +83,7 @@ import org.terasology.wildAnimalsGenome.component.MatingComponent;
         }
     }
 }*/
-@BehaviorAction(name = "mate_target")
+@BehaviorAction(name = "set_mating_target_block")
 public class SetMatingTargetBlockNode extends BaseAction {
     @Override
     public void construct(Actor actor) {
@@ -93,6 +93,7 @@ public class SetMatingTargetBlockNode extends BaseAction {
 
         MinionMoveComponent actorMoveComponent = actor.getComponent(MinionMoveComponent.class);
         MinionMoveComponent matingEntityMoveComponent = matingEntity.getComponent(MinionMoveComponent.class);
+
 
         if (actorMoveComponent.target != null) {
             Vector3f actorTarget = actorMoveComponent.target;
@@ -113,6 +114,8 @@ public class SetMatingTargetBlockNode extends BaseAction {
         MatingComponent matingComponent = actor.getComponent(MatingComponent.class);
         EntityRef matingEntity = matingComponent.matingEntity;
         MinionMoveComponent matingEntityMoveComponent = matingEntity.getComponent(MinionMoveComponent.class);
+        if(matingEntityMoveComponent == null)
+            return BehaviorState.FAILURE;
 
         if (matingEntityMoveComponent.target != null) {
             return BehaviorState.SUCCESS;
