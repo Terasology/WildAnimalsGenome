@@ -1,6 +1,6 @@
 {
   "BehaviorNode" : {
-    "action"    : "ensure_target_present"
+    "action"    : "ensure_target_present",
     "name"      : "ensure_target_present",
     "displayName" : "EnsureTargetPresent",
     "category"  : "logic",

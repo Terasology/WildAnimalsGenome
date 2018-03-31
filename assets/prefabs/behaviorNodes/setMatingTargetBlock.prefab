@@ -1,6 +1,6 @@
 {
   "BehaviorNode" : {
-    "action"    : "set_mating_target_block"
+    "action"    : "set_mating_target_block",
     "name"      : "set_mating_target_block",
     "displayName" : "SetMatingTargetBlock",
     "category"  : "path",
