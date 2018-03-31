@@ -31,58 +31,6 @@ import org.terasology.wildAnimalsGenome.component.MatingComponent;
  * Updates the target field in the {@link MinionMoveComponent} of the animal's mate with the target set in the current
  * animal's {@link MinionMoveComponent}
  */
-/*public class SetMatingTargetBlockNode extends Node {
-    @Override
-    public Task createTask() {
-        return new SetMatingTargetBlockTask(this);
-    }
-
-    public static class SetMatingTargetBlockTask extends Task {
-
-        public SetMatingTargetBlockTask(Node node) {
-            super(node);
-        }
-
-        @Override
-        public void onInitialize() {
-            MatingComponent matingComponent = actor().getComponent(MatingComponent.class);
-            EntityRef matingEntity = matingComponent.matingEntity;
-            MatingComponent matingComponent1 = matingEntity.getComponent(MatingComponent.class);
-
-            MinionMoveComponent actorMoveComponent = actor().getComponent(MinionMoveComponent.class);
-            MinionMoveComponent matingEntityMoveComponent = matingEntity.getComponent(MinionMoveComponent.class);
-
-            if (actorMoveComponent.target != null) {
-                Vector3f actorTarget = actorMoveComponent.target;
-                matingEntityMoveComponent.target = new Vector3f(actorTarget);
-                matingEntityMoveComponent.target.add(1, 0, 0);
-                matingEntity.saveComponent(matingEntityMoveComponent);
-
-                matingComponent.target = new Vector3f(actorMoveComponent.target);
-                matingComponent1.target = new Vector3f(matingEntityMoveComponent.target);
-                actor().save(matingComponent);
-                matingEntity.saveComponent(matingComponent1);
-            }
-        }
-
-        @Override
-        public Status update(float dt) {
-            MatingComponent matingComponent = actor().getComponent(MatingComponent.class);
-            EntityRef matingEntity = matingComponent.matingEntity;
-            MinionMoveComponent matingEntityMoveComponent = matingEntity.getComponent(MinionMoveComponent.class);
-
-            if (matingEntityMoveComponent.target != null) {
-                return Status.SUCCESS;
-            }
-            return Status.FAILURE;
-        }
-
-        @Override
-        public void handle(Status result) {
-
-        }
-    }
-}*/
 @BehaviorAction(name = "set_mating_target_block")
 public class SetMatingTargetBlockNode extends BaseAction {
     @Override

@@ -18,7 +18,6 @@ package org.terasology.wildAnimalsGenome;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import org.terasology.advancedBehaviors.UpdateBehaviorEvent;
 import org.terasology.assets.management.AssetManager;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -89,7 +88,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
             if (entityRef.hasComponent(BehaviorComponent.class) && entityRef.getComponent(BehaviorComponent.class).tree != mateBT) {
                 if (matingComponent.matingEntity != EntityRef.NULL && matingComponent.matingEntity.hasComponent(MatingBehaviorComponent.class)) {
                     matingComponent.matingEntity.removeComponent(MatingBehaviorComponent.class);
-                    //matingComponent.matingEntity.send(new UpdateBehaviorEvent());
                     entityRef.send(new MatingCleanupEvent(entityRef, matingComponent.matingEntity));
                 }
             }
@@ -107,20 +105,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
             }
         }
     }
-
-    /**
-     * Changes behavior to "mate" on receiving an {@link UpdateBehaviorEvent}.
-     */
-    /*@ReceiveEvent(components = {MatingBehaviorComponent.class})
-    public void onUpdateBehaviorMate(UpdateBehaviorEvent event, EntityRef entityRef, MatingComponent matingComponent) {
-        if (matingComponent.readyToMate && matingComponent.inMatingProcess) {
-            event.consume();
-            BehaviorComponent behaviorComponent = entityRef.getComponent(BehaviorComponent.class);
-            behaviorComponent.tree = assetManager.getAsset("WildAnimalsGenome:mate", BehaviorTree.class).get();
-            logger.info(entityRef.getId() + " - Changed behavior to mate");
-            entityRef.saveComponent(behaviorComponent);
-        }
-    }*/
 
     /**
      * Finds nearby potential mates and sends a {@link MatingProposalEvent}.
@@ -181,7 +165,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
             MinionMoveComponent actorMinionMoveComponent = event.target.getComponent(MinionMoveComponent.class);
             actorMinionMoveComponent.target = null;
 
-            //event.target.send(new UpdateBehaviorEvent());
             entityRef.send(new MatingProposalResponseEvent(event.target, event.instigator, true));
         } else {
             entityRef.send(new MatingProposalResponseEvent(event.target, event.instigator, false));
@@ -196,7 +179,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
         MatingComponent matingComponent = event.target.getComponent(MatingComponent.class);
         if (event.accepted && matingComponent.readyToMate) {
             matingComponent.matingEntity = event.instigator;
-            //event.target.send(new UpdateBehaviorEvent());
             logger.info("Mating between " + event.target.getId() + " and " + event.instigator.getId());
         } else {
             matingComponent.inMatingProcess = false;
@@ -224,7 +206,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
         offset.scale(2);
         spawnPos.add(offset);
         event.getOffspring().send(new CharacterTeleportEvent(spawnPos));
-        //event.getOffspring().send(new UpdateBehaviorEvent());
         entityRef.send(new MatingCleanupEvent(event.getOrganism1(), event.getOrganism2()));
     }
 
@@ -237,8 +218,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
         EntityRef animal2 = event.animal2;
         animal1.removeComponent(MatingBehaviorComponent.class);
         animal2.removeComponent(MatingBehaviorComponent.class);
-        //animal1.send(new UpdateBehaviorEvent());
-        //animal2.send(new UpdateBehaviorEvent());
 
         MatingComponent matingComponent1 = animal1.getComponent(MatingComponent.class);
         MatingComponent matingComponent1New = new MatingComponent();
