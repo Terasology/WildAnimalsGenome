@@ -83,7 +83,7 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
 
     @Override
     public void update(float delta) {
-        BehaviorTree mateBT = assetManager.getAsset("WildAnimalsGenome:mate", BehaviorTree.class).get();
+        BehaviorTree mateBT = assetManager.getAsset("WildAnimalsGenome:matingCritter", BehaviorTree.class).get();
         for (EntityRef entityRef : entityManager.getEntitiesWith(MatingBehaviorComponent.class)) {
             MatingComponent matingComponent = entityRef.getComponent(MatingComponent.class);
             if (entityRef.hasComponent(BehaviorComponent.class) && entityRef.getComponent(BehaviorComponent.class).tree != mateBT) {
@@ -225,7 +225,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
         spawnPos.add(offset);
         event.getOffspring().send(new CharacterTeleportEvent(spawnPos));
         //event.getOffspring().send(new UpdateBehaviorEvent());
-
         entityRef.send(new MatingCleanupEvent(event.getOrganism1(), event.getOrganism2()));
     }
 

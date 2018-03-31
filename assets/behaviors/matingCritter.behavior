@@ -7,7 +7,6 @@
             child: {
               sequence: [
                 set_target_nearby_block,
-                set_mating_target_block,
                 {
                   lookup: { tree: "WildAnimalsGenome:mate" }
                 }
