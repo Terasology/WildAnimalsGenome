@@ -1,6 +1,6 @@
 {
     "id" : "WildAnimalsGenome",
-    "version" : "0.1.0-SNAPSHOT",
+    "version" : "0.2.0-SNAPSHOT",
     "author" : "arpan98",
     "displayName" : "WildAnimalsGenome",
     "description" : "Integrates WildAnimals with Genome adding breeding capabilities.",
