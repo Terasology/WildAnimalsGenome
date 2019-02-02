@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 MovingBlocks
+ * Copyright 2019 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,13 @@ import org.terasology.rendering.nui.NUIManager;
 import org.terasology.wildAnimals.component.WildAnimalComponent;
 import org.terasology.wildAnimalsGenome.component.MatingBehaviorComponent;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
-import org.terasology.wildAnimalsGenome.event.*;
+import org.terasology.wildAnimalsGenome.event.ActivateMatingScreenEvent;
+import org.terasology.wildAnimalsGenome.event.MatingActivatedEvent;
+import org.terasology.wildAnimalsGenome.event.MatingCleanupEvent;
+import org.terasology.wildAnimalsGenome.event.MatingInitiatedEvent;
+import org.terasology.wildAnimalsGenome.event.MatingProposalEvent;
+import org.terasology.wildAnimalsGenome.event.MatingProposalResponseEvent;
+import org.terasology.wildAnimalsGenome.event.MatingTargetReachedEvent;
 
 import java.util.List;
 
@@ -52,6 +58,9 @@ import java.util.List;
  */
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements UpdateSubscriberSystem {
+
+    private static final String MATING_SEARCH_ID = "WildAnimalsGenome:MatingSearch";
+    private static final Logger logger = LoggerFactory.getLogger(AnimalMatingAuthoritySystem.class);
 
     @In
     private DelayManager delayManager;
@@ -76,9 +85,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
      * Squared distance below which the animal is said to have "reached" its target mating block.
      */
     private float maxDistanceSquared = 1.8f;
-    private static final String MATING_SEARCH_ID = "WildAnimalsGenome:MatingSearch";
-
-    private static final Logger logger = LoggerFactory.getLogger(AnimalMatingAuthoritySystem.class);
 
     @Override
     public void update(float delta) {
@@ -115,7 +121,8 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
             EntityRef animalEntity = entityManager.getEntity(getEntityIDFromString(event.getActionId()));
             MatingComponent matingComponent = animalEntity.getComponent(MatingComponent.class);
             if (matingComponent.readyToMate && !matingComponent.inMatingProcess) {
-                List<EntityRef> nearbyAnimals = findNearbyAnimals(animalEntity.getComponent(LocationComponent.class), searchRadius, animalEntity.getComponent(WildAnimalComponent.class).name);
+                List<EntityRef> nearbyAnimals = findNearbyAnimals(
+                        animalEntity.getComponent(LocationComponent.class), searchRadius, animalEntity.getComponent(WildAnimalComponent.class).name);
                 List<EntityRef> animals = filterMatingActivatedAnimals(nearbyAnimals);
                 for (EntityRef animal : animals) {
                     if (!animal.equals(animalEntity)) {
@@ -194,7 +201,10 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
         MatingComponent matingComponent = event.animalEntity.getComponent(MatingComponent.class);
         EntityRef matingEntity = matingComponent.matingEntity;
         if (matingEntity.getComponent(MatingComponent.class).reachedTarget) {
-            event.animalEntity.send(new MatingInitiatedEvent(event.animalEntity, matingEntity));
+            MatingInitiatedEvent matingInitiatedEvent = new MatingInitiatedEvent();
+            matingInitiatedEvent.animal1 = event.animalEntity;
+            matingInitiatedEvent.animal2 = matingEntity;
+            event.animalEntity.send(matingInitiatedEvent);
         }
     }
 

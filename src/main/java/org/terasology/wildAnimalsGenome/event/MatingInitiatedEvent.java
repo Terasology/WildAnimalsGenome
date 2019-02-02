@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 MovingBlocks
+ * Copyright 2019 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,4 @@ public class MatingInitiatedEvent implements Event {
 
     @Replicate
     public EntityRef animal2;
-
-    public MatingInitiatedEvent(EntityRef animal1, EntityRef animal2) {
-        this.animal1 = animal1;
-        this.animal2 = animal2;
-    }
 }
