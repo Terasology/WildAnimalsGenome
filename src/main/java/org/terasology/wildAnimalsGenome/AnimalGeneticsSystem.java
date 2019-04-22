@@ -54,6 +54,10 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
 
     private static final String genomeRegistryPrefix = "WildAnimals:";
 
+    private static final Double SIBLINGS_NORMAL_PROBABILITY = 95.0;
+    private static final Double SIBLINGS_TWINS_PROBABILITY = 4.5;
+    private static final Double SIBLINGS_TRIPLETS_PROBABILITY = 0.5;
+
     @Override
     public void preBegin() {
         breedingAlgorithm = new FavourableWeightedBreedingAlgorithm(0, 0.6f);
@@ -95,16 +99,14 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
         event.animal1.saveComponent(genomeComponent1);
         event.animal2.saveComponent(genomeComponent2);
 
-        EntityRef offspring;
-        if (event.animal1.getParentPrefab().getName().equals("WildAnimals:deer")) {
-            offspring = entityManager.create("WildAnimals:babyDeer");
-        } else {
-            offspring = entityManager.create(event.animal1.getParentPrefab());
+        for(int i=0; i <= this.getSiblings(); i++) {
+            if (event.animal1.getParentPrefab().getName().equals("WildAnimals:deer")) {
+                entityRef.send(new OnBreed(event.animal1, event.animal2, entityManager.create("WildAnimals:babyDeer")));
+            } else {
+                entityRef.send(new OnBreed(event.animal1, event.animal2, entityManager.create(event.animal1.getParentPrefab())));
+            }
         }
-        entityRef.send(new OnBreed(event.animal1, event.animal2, offspring));
 
-        for(int i=0; i <= this.getSiblings(); i++)
-            entityRef.send(new OnBreed(event.animal1, event.animal2, offspring));
     }
 
     /**
@@ -141,12 +143,10 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
      * Chances of having non-identical triplets: 0.5%
      */
     private int getSiblings () {
-
         RandomCollection<Integer> rc = new RandomCollection<>();
-        rc.add(950,0);
-        rc.add(45,1);
-        rc.add(5,2);
+        rc.add(SIBLINGS_NORMAL_PROBABILITY,1);
+        rc.add(SIBLINGS_TWINS_PROBABILITY,2);
+        rc.add(SIBLINGS_TRIPLETS_PROBABILITY,3);
         return rc.next();
-
     }
 }
