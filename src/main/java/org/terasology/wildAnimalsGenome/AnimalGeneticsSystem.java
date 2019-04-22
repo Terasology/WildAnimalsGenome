@@ -33,6 +33,7 @@ import org.terasology.logic.characters.CharacterMovementComponent;
 import org.terasology.registry.In;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
 import org.terasology.wildAnimalsGenome.event.MatingInitiatedEvent;
+import org.terasology.wildAnimalsGenome.util.RandomCollection;
 import org.terasology.world.WorldProvider;
 
 import javax.annotation.Nullable;
@@ -101,6 +102,9 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
             offspring = entityManager.create(event.animal1.getParentPrefab());
         }
         entityRef.send(new OnBreed(event.animal1, event.animal2, offspring));
+
+        for(int i=0; i <= this.getSiblings(); i++)
+            entityRef.send(new OnBreed(event.animal1, event.animal2, offspring));
     }
 
     /**
@@ -128,6 +132,21 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
                 });
         GenomeDefinition genomeDefinition = new GenomeDefinition(breedingAlgorithm, genomeMap);
         genomeRegistry.registerType(genomeID, genomeDefinition);
+
+    }
+
+    /**
+     * This method processes the number of siblings according to the following probability scale:
+     * Chances of having non-identical twins: 4.5%
+     * Chances of having non-identical triplets: 0.5%
+     */
+    private int getSiblings () {
+
+        RandomCollection<Integer> rc = new RandomCollection<>();
+        rc.add(950,0);
+        rc.add(45,1);
+        rc.add(5,2);
+        return rc.next();
 
     }
 }
