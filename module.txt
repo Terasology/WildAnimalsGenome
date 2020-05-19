@@ -6,8 +6,8 @@
     "description": "Integrates WildAnimals with Genome adding breeding capabilities.",
     "dependencies": [
         { "id": "Behaviors", "minVersion": "1.0.0" },
-        { "id": "Genome", "minVersion": "0.1.1" },
-        { "id": "WildAnimals", "minVersion": "0.2.0" }
+        { "id": "Genome", "minVersion": "1.0.0" },
+        { "id": "WildAnimals", "minVersion": "1.0.0" }
     ],
     "isServerSideOnly": false,
     "isLibrary": true
