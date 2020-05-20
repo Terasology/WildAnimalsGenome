@@ -7,6 +7,7 @@
     "dependencies": [
         { "id": "Behaviors", "minVersion": "1.0.0" },
         { "id": "Genome", "minVersion": "1.0.0" },
+        { "id": "Inventory", "minVersion": "1.1.0" },
         { "id": "WildAnimals", "minVersion": "1.0.0" }
     ],
     "isServerSideOnly": false,
