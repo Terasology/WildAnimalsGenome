@@ -25,7 +25,10 @@ import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.genome.GenomeDefinition;
 import org.terasology.genome.GenomeRegistry;
 import org.terasology.genome.breed.BreedingAlgorithm;
+import org.terasology.genome.breed.ContinuousBreedingAlgorithm;
 import org.terasology.genome.breed.FavourableWeightedBreedingAlgorithm;
+import org.terasology.genome.breed.mutator.GeneMutator;
+import org.terasology.genome.breed.mutator.VocabularyGeneMutator;
 import org.terasology.genome.component.GenomeComponent;
 import org.terasology.genome.events.OnBreed;
 import org.terasology.genome.genomeMap.SeedBasedGenomeMap;
@@ -118,7 +121,7 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
      */
     private void addPropertyMap(EntityRef animal1, EntityRef animal2, String genomeID) {
         SeedBasedGenomeMap genomeMap = new SeedBasedGenomeMap(worldProvider.getSeed().hashCode());
-        genomeMap.addSeedBasedProperty("speedMultiplier", 0, 0, 1, Float.class,
+        genomeMap.addSeedBasedProperty("speedMultiplier", 0, 0, 1, Float.class, breedingAlgorithm,
                 new Function<String, Float>() {
                     @Nullable
                     @Override
