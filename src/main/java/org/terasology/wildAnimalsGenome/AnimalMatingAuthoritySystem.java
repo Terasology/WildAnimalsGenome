@@ -27,6 +27,7 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
+import org.terasology.genome.component.GenomeComponent;
 import org.terasology.genome.events.OnBreed;
 import org.terasology.logic.behavior.BehaviorComponent;
 import org.terasology.logic.behavior.asset.BehaviorTree;
@@ -85,6 +86,8 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
      * Squared distance below which the animal is said to have "reached" its target mating block.
      */
     private float maxDistanceSquared = 1.8f;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnimalMatingAuthoritySystem.class);
 
     @Override
     public void update(float delta) {

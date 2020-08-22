@@ -118,7 +118,7 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
      */
     private void addPropertyMap(EntityRef animal1, EntityRef animal2, String genomeID) {
         SeedBasedGenomeMap genomeMap = new SeedBasedGenomeMap(worldProvider.getSeed().hashCode());
-        genomeMap.addSeedBasedProperty("speedMultiplier", 0, 0, 1, Float.class,
+        genomeMap.addSeedBasedProperty("speedMultiplier", 0, 0, 1, Float.class, breedingAlgorithm,
                 new Function<String, Float>() {
                     @Nullable
                     @Override
