@@ -220,7 +220,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
         spawnPos.add(offset);
         event.getOffspring().send(new CharacterTeleportEvent(spawnPos));
         entityRef.send(new MatingCleanupEvent(event.getOrganism1(), event.getOrganism2()));
-        LOGGER.info("Mating completed with offspring genes "+entityRef.getComponent(GenomeComponent.class).genes);
     }
 
     /**
