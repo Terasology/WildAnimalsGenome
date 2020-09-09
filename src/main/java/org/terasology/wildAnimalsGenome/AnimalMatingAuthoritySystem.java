@@ -1,45 +1,32 @@
-/*
- * Copyright 2019 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.wildAnimalsGenome;
 
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.entitySystem.entity.EntityManager;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.EventPriority;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
+import org.terasology.engine.entitySystem.entity.EntityManager;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.event.EventPriority;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.systems.UpdateSubscriberSystem;
+import org.terasology.engine.logic.behavior.BehaviorComponent;
+import org.terasology.engine.logic.behavior.asset.BehaviorTree;
+import org.terasology.engine.logic.characters.AliveCharacterComponent;
+import org.terasology.engine.logic.characters.CharacterTeleportEvent;
+import org.terasology.engine.logic.common.ActivateEvent;
+import org.terasology.engine.logic.delay.DelayManager;
+import org.terasology.engine.logic.delay.DelayedActionTriggeredEvent;
+import org.terasology.engine.logic.location.LocationComponent;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.rendering.nui.NUIManager;
 import org.terasology.genome.events.OnBreed;
 import org.terasology.gestalt.assets.management.AssetManager;
-import org.terasology.logic.behavior.BehaviorComponent;
-import org.terasology.logic.behavior.asset.BehaviorTree;
-import org.terasology.logic.characters.AliveCharacterComponent;
-import org.terasology.logic.characters.CharacterTeleportEvent;
-import org.terasology.logic.common.ActivateEvent;
-import org.terasology.logic.delay.DelayManager;
-import org.terasology.logic.delay.DelayedActionTriggeredEvent;
-import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.minion.move.MinionMoveComponent;
-import org.terasology.registry.In;
-import org.terasology.rendering.nui.NUIManager;
 import org.terasology.wildAnimals.component.WildAnimalComponent;
 import org.terasology.wildAnimalsGenome.component.MatingBehaviorComponent;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
@@ -61,7 +48,19 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
 
     private static final String MATING_SEARCH_ID = "WildAnimalsGenome:MatingSearch";
     private static final Logger logger = LoggerFactory.getLogger(AnimalMatingAuthoritySystem.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnimalMatingAuthoritySystem.class);
+    /**
+     * Delay between consecutive searches for a mate.
+     */
+    private final long matingSearchInterval = 1000L;
+    /**
+     * Radius within which to look for a mate.
+     */
+    private final float searchRadius = 10f;
+    /**
+     * Squared distance below which the animal is said to have "reached" its target mating block.
+     */
+    private final float maxDistanceSquared = 1.8f;
     @In
     private DelayManager delayManager;
     @In
@@ -70,23 +69,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
     private NUIManager nuiManager;
     @In
     private AssetManager assetManager;
-
-    /**
-     * Delay between consecutive searches for a mate.
-     */
-    private long matingSearchInterval = 1000L;
-
-    /**
-     * Radius within which to look for a mate.
-     */
-    private float searchRadius = 10f;
-
-    /**
-     * Squared distance below which the animal is said to have "reached" its target mating block.
-     */
-    private float maxDistanceSquared = 1.8f;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AnimalMatingAuthoritySystem.class);
 
     @Override
     public void update(float delta) {
@@ -103,7 +85,8 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
             if (matingComponent.inMatingProcess) {
                 MinionMoveComponent minionMoveComponent = entityRef.getComponent(MinionMoveComponent.class);
                 if (minionMoveComponent.target != null) {
-                    Vector3f target = new Vector3f(minionMoveComponent.target.getX(), minionMoveComponent.target.getY(), minionMoveComponent.target.getZ());
+                    Vector3f target = new Vector3f(minionMoveComponent.target.getX(),
+                            minionMoveComponent.target.getY(), minionMoveComponent.target.getZ());
                     if (entityRef.getComponent(LocationComponent.class).getWorldPosition().distanceSquared(target) <= maxDistanceSquared) {
                         matingComponent.reachedTarget = true;
                         entityRef.saveComponent(matingComponent);
@@ -124,7 +107,8 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
             MatingComponent matingComponent = animalEntity.getComponent(MatingComponent.class);
             if (matingComponent.readyToMate && !matingComponent.inMatingProcess) {
                 List<EntityRef> nearbyAnimals = findNearbyAnimals(
-                        animalEntity.getComponent(LocationComponent.class), searchRadius, animalEntity.getComponent(WildAnimalComponent.class).name);
+                        animalEntity.getComponent(LocationComponent.class), searchRadius,
+                        animalEntity.getComponent(WildAnimalComponent.class).name);
                 List<EntityRef> animals = filterMatingActivatedAnimals(nearbyAnimals);
                 for (EntityRef animal : animals) {
                     if (!animal.equals(animalEntity)) {
@@ -134,7 +118,8 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
                         clientEntity.send(new MatingProposalEvent(animalEntity, animal));
                     }
                 }
-                delayManager.addDelayedAction(clientEntity, MATING_SEARCH_ID + ":" + animalEntity.getId(), matingSearchInterval);
+                delayManager.addDelayedAction(clientEntity, MATING_SEARCH_ID + ":" + animalEntity.getId(),
+                        matingSearchInterval);
             }
         }
     }
@@ -151,7 +136,8 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
         }
         if (event.isActivated) {
             matingComponent.readyToMate = true;
-            delayManager.addDelayedAction(clientEntity, MATING_SEARCH_ID + ":" + event.entityRef.getId(), matingSearchInterval);
+            delayManager.addDelayedAction(clientEntity, MATING_SEARCH_ID + ":" + event.entityRef.getId(),
+                    matingSearchInterval);
         } else {
             matingComponent.readyToMate = false;
         }
@@ -255,11 +241,12 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
      * Find nearby animals within a specified range.
      *
      * @param actorLocationComponent {@link LocationComponent} of the animal.
-     * @param searchRadius           The radius within which to search for.
-     * @param animalName             The name of the animal which is being searched.
+     * @param searchRadius The radius within which to search for.
+     * @param animalName The name of the animal which is being searched.
      * @return A list of {@link EntityRef} of the nearby animals.
      */
-    private List<EntityRef> findNearbyAnimals(LocationComponent actorLocationComponent, float searchRadius, String animalName) {
+    private List<EntityRef> findNearbyAnimals(LocationComponent actorLocationComponent, float searchRadius,
+                                              String animalName) {
         List<EntityRef> animalsWithinRange = Lists.newArrayList();
         float maxDistanceSquared = searchRadius * searchRadius;
         Iterable<EntityRef> allAnimals = entityManager.getEntitiesWith(WildAnimalComponent.class);
