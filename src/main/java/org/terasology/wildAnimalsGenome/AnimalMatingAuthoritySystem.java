@@ -37,6 +37,7 @@ import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.delay.DelayManager;
 import org.terasology.logic.delay.DelayedActionTriggeredEvent;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.math.JomlUtil;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.registry.In;
@@ -218,7 +219,7 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
         Vector3f offset = new Vector3f(locationComponent.getWorldDirection());
         offset.scale(2);
         spawnPos.add(offset);
-        event.getOffspring().send(new CharacterTeleportEvent(spawnPos));
+        event.getOffspring().send(new CharacterTeleportEvent(JomlUtil.from(spawnPos)));
         entityRef.send(new MatingCleanupEvent(event.getOrganism1(), event.getOrganism2()));
     }
 
