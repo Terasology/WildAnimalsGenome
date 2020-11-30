@@ -1,18 +1,5 @@
-/*
- * Copyright 2019 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.wildAnimalsGenome;
 
 import com.google.common.collect.Lists;
@@ -27,7 +14,6 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
-import org.terasology.genome.component.GenomeComponent;
 import org.terasology.genome.events.OnBreed;
 import org.terasology.logic.behavior.BehaviorComponent;
 import org.terasology.logic.behavior.asset.BehaviorTree;
@@ -126,7 +112,7 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
             MatingComponent matingComponent = animalEntity.getComponent(MatingComponent.class);
             if (matingComponent.readyToMate && !matingComponent.inMatingProcess) {
                 List<EntityRef> nearbyAnimals = findNearbyAnimals(
-                        animalEntity.getComponent(LocationComponent.class), searchRadius, animalEntity.getComponent(WildAnimalComponent.class).name);
+                    animalEntity.getComponent(LocationComponent.class), searchRadius, animalEntity.getComponent(WildAnimalComponent.class).name);
                 List<EntityRef> animals = filterMatingActivatedAnimals(nearbyAnimals);
                 for (EntityRef animal : animals) {
                     if (!animal.equals(animalEntity)) {
@@ -257,8 +243,8 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
      * Find nearby animals within a specified range.
      *
      * @param actorLocationComponent {@link LocationComponent} of the animal.
-     * @param searchRadius           The radius within which to search for.
-     * @param animalName             The name of the animal which is being searched.
+     * @param searchRadius The radius within which to search for.
+     * @param animalName The name of the animal which is being searched.
      * @return A list of {@link EntityRef} of the nearby animals.
      */
     private List<EntityRef> findNearbyAnimals(LocationComponent actorLocationComponent, float searchRadius, String animalName) {
