@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.wildAnimalsGenome.BehaviorNode;
 
+import org.joml.Vector3f;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.behavior.BehaviorAction;
 import org.terasology.logic.behavior.core.Actor;
 import org.terasology.logic.behavior.core.BaseAction;
 import org.terasology.logic.behavior.core.BehaviorState;
-import org.terasology.math.geom.Vector3f;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
 

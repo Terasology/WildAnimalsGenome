@@ -3,6 +3,7 @@
 package org.terasology.wildAnimalsGenome;
 
 import com.google.common.collect.Lists;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.assets.management.AssetManager;
@@ -24,7 +25,6 @@ import org.terasology.logic.delay.DelayManager;
 import org.terasology.logic.delay.DelayedActionTriggeredEvent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.JomlUtil;
-import org.terasology.math.geom.Vector3f;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.registry.In;
 import org.terasology.rendering.nui.NUIManager;
@@ -91,8 +91,8 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
             if (matingComponent.inMatingProcess) {
                 MinionMoveComponent minionMoveComponent = entityRef.getComponent(MinionMoveComponent.class);
                 if (minionMoveComponent.target != null) {
-                    Vector3f target = new Vector3f(minionMoveComponent.target.getX(), minionMoveComponent.target.getY(), minionMoveComponent.target.getZ());
-                    if (entityRef.getComponent(LocationComponent.class).getWorldPosition().distanceSquared(target) <= maxDistanceSquared) {
+                    Vector3f target = new Vector3f(minionMoveComponent.target.x(), minionMoveComponent.target.y(), minionMoveComponent.target.z());
+                    if (entityRef.getComponent(LocationComponent.class).getWorldPosition(new Vector3f()).distanceSquared(target) <= maxDistanceSquared) {
                         matingComponent.reachedTarget = true;
                         entityRef.saveComponent(matingComponent);
                         entityRef.send(new MatingTargetReachedEvent(entityRef));
@@ -201,11 +201,11 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
     @ReceiveEvent
     public void onOffspringCreated(OnBreed event, EntityRef entityRef) {
         LocationComponent locationComponent = entityRef.getComponent(LocationComponent.class);
-        Vector3f spawnPos = locationComponent.getWorldPosition();
-        Vector3f offset = new Vector3f(locationComponent.getWorldDirection());
-        offset.scale(2);
+        Vector3f spawnPos = locationComponent.getWorldPosition(new Vector3f());
+        Vector3f offset = locationComponent.getWorldDirection(new Vector3f());
+        offset.mul(2);
         spawnPos.add(offset);
-        event.getOffspring().send(new CharacterTeleportEvent(JomlUtil.from(spawnPos)));
+        event.getOffspring().send(new CharacterTeleportEvent(spawnPos));
         entityRef.send(new MatingCleanupEvent(event.getOrganism1(), event.getOrganism2()));
     }
 
@@ -243,21 +243,24 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
      * Find nearby animals within a specified range.
      *
      * @param actorLocationComponent {@link LocationComponent} of the animal.
-     * @param searchRadius The radius within which to search for.
+     * @param radius The radius within which to search for.
      * @param animalName The name of the animal which is being searched.
      * @return A list of {@link EntityRef} of the nearby animals.
      */
-    private List<EntityRef> findNearbyAnimals(LocationComponent actorLocationComponent, float searchRadius, String animalName) {
+    private List<EntityRef> findNearbyAnimals(LocationComponent actorLocationComponent, float radius, String animalName) {
         List<EntityRef> animalsWithinRange = Lists.newArrayList();
-        float maxDistanceSquared = searchRadius * searchRadius;
+        float distanceSquared = radius * radius;
         Iterable<EntityRef> allAnimals = entityManager.getEntitiesWith(WildAnimalComponent.class);
 
+        Vector3f actorPosition = actorLocationComponent.getWorldPosition(new Vector3f());
+        Vector3f animalLocation = new Vector3f();
         for (EntityRef animal : allAnimals) {
             LocationComponent animalLocationComponent = animal.getComponent(LocationComponent.class);
             if (animal.getComponent(AliveCharacterComponent.class) == null) {
                 continue;
             }
-            if (animalLocationComponent.getWorldPosition().distanceSquared(actorLocationComponent.getWorldPosition()) <= maxDistanceSquared) {
+            animalLocationComponent.getWorldPosition(animalLocation);
+            if (animalLocation.distanceSquared(actorPosition) <= distanceSquared) {
                 if (animal.getComponent(WildAnimalComponent.class).name.equals(animalName)) {
                     animalsWithinRange.add(animal);
                 }
