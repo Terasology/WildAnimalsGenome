@@ -1,15 +1,27 @@
 {
-    "id": "WildAnimalsGenome",
-    "version": "1.0.0",
-    "author": "arpan98",
-    "displayName": "Wild Animals - Genome",
-    "description": "Integrates WildAnimals with Genome adding breeding capabilities.",
-    "dependencies": [
-        { "id": "Behaviors", "minVersion": "1.0.0" },
-        { "id": "Genome", "minVersion": "1.0.0" },
-        { "id": "Inventory", "minVersion": "1.1.0" },
-        { "id": "WildAnimals", "minVersion": "1.0.0" }
-    ],
-    "isServerSideOnly": false,
-    "isLibrary": true
+  "id": "WildAnimalsGenome",
+  "version": "1.1.0-SNAPSHOT",
+  "author": "arpan98",
+  "displayName": "Wild Animals - Genome",
+  "description": "Integrates WildAnimals with Genome adding breeding capabilities.",
+  "dependencies": [
+    {
+      "id": "Behaviors",
+      "minVersion": "1.0.0"
+    },
+    {
+      "id": "Genome",
+      "minVersion": "1.0.0"
+    },
+    {
+      "id": "Inventory",
+      "minVersion": "1.1.0"
+    },
+    {
+      "id": "WildAnimals",
+      "minVersion": "1.0.0"
+    }
+  ],
+  "isServerSideOnly": false,
+  "isLibrary": true
 }
