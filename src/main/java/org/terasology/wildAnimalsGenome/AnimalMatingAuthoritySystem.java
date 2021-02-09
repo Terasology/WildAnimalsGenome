@@ -24,7 +24,6 @@ import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.delay.DelayManager;
 import org.terasology.logic.delay.DelayedActionTriggeredEvent;
 import org.terasology.logic.location.LocationComponent;
-import org.terasology.math.JomlUtil;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.registry.In;
 import org.terasology.rendering.nui.NUIManager;
