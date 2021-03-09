@@ -3,12 +3,15 @@
 package org.terasology.wildAnimalsGenome;
 
 import com.google.common.base.Function;
-import org.terasology.entitySystem.entity.EntityManager;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.entity.EntityManager;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.logic.characters.CharacterMovementComponent;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.world.WorldProvider;
 import org.terasology.genome.GenomeDefinition;
 import org.terasology.genome.GenomeRegistry;
 import org.terasology.genome.breed.BreedingAlgorithm;
@@ -16,12 +19,9 @@ import org.terasology.genome.breed.FavourableWeightedBreedingAlgorithm;
 import org.terasology.genome.component.GenomeComponent;
 import org.terasology.genome.events.OnBreed;
 import org.terasology.genome.genomeMap.SeedBasedGenomeMap;
-import org.terasology.logic.characters.CharacterMovementComponent;
-import org.terasology.registry.In;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
 import org.terasology.wildAnimalsGenome.event.MatingInitiatedEvent;
 import org.terasology.wildAnimalsGenome.util.RandomCollection;
-import org.terasology.world.WorldProvider;
 
 import javax.annotation.Nullable;
 

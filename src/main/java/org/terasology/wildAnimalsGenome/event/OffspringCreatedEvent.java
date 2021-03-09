@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.wildAnimalsGenome.event;
 
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.Event;
-import org.terasology.network.ServerEvent;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.event.Event;
+import org.terasology.engine.network.ServerEvent;
 
 @ServerEvent
 public class OffspringCreatedEvent implements Event {
