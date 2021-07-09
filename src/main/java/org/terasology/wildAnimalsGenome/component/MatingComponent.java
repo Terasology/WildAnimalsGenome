@@ -1,16 +1,16 @@
-// Copyright 2020 The Terasology Foundation
+// Copyright 2021 The Terasology Foundation
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.wildAnimalsGenome.component;
 
 import org.joml.Vector3f;
-import org.terasology.engine.entitySystem.Component;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.network.Replicate;
+import org.terasology.gestalt.entitysystem.component.Component;
 
 /**
  * This component allows WildAnimals to mate.
  */
-public class MatingComponent implements Component {
+public class MatingComponent implements Component<MatingComponent> {
     /**
      * Whether mating is disabled for the current animal.
      */
