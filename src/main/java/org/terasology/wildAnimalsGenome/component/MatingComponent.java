@@ -46,4 +46,14 @@ public class MatingComponent implements Component<MatingComponent> {
      */
     @Replicate
     public boolean reachedTarget = false;
+
+    @Override
+    public void copy(MatingComponent other) {
+        this.matingDisabled = other.matingDisabled;
+        this.readyToMate = other.readyToMate;
+        this.inMatingProcess = other.inMatingProcess;
+        this.matingEntity = other.matingEntity;
+        this.target = other.target;
+        this.reachedTarget = other.reachedTarget;
+    }
 }
