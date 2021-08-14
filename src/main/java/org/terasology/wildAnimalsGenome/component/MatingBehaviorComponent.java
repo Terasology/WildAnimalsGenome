@@ -9,7 +9,7 @@ import org.terasology.gestalt.entitysystem.component.Component;
  */
 public class MatingBehaviorComponent implements Component<MatingBehaviorComponent> {
     @Override
-    public void copy(MatingBehaviorComponent other) {
+    public void copyFrom(MatingBehaviorComponent other) {
 
     }
 }

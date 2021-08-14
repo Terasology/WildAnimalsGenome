@@ -48,7 +48,7 @@ public class MatingComponent implements Component<MatingComponent> {
     public boolean reachedTarget = false;
 
     @Override
-    public void copy(MatingComponent other) {
+    public void copyFrom(MatingComponent other) {
         this.matingDisabled = other.matingDisabled;
         this.readyToMate = other.readyToMate;
         this.inMatingProcess = other.inMatingProcess;
