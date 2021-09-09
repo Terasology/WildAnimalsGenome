@@ -6,10 +6,10 @@ import com.google.common.collect.Lists;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.gestalt.assets.management.AssetManager;
 import org.terasology.engine.entitySystem.entity.EntityManager;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.event.EventPriority;
+import org.terasology.engine.entitySystem.event.Priority;
 import org.terasology.engine.entitySystem.event.ReceiveEvent;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterMode;
@@ -26,6 +26,7 @@ import org.terasology.engine.logic.location.LocationComponent;
 import org.terasology.engine.registry.In;
 import org.terasology.engine.rendering.nui.NUIManager;
 import org.terasology.genome.events.OnBreed;
+import org.terasology.gestalt.assets.management.AssetManager;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.wildAnimals.component.WildAnimalComponent;
 import org.terasology.wildAnimalsGenome.component.MatingBehaviorComponent;
@@ -232,7 +233,8 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
     /**
      * Sends a {@link ActivateMatingScreenEvent} to the client activating an animal
      */
-    @ReceiveEvent(priority = EventPriority.PRIORITY_HIGH, components = {WildAnimalComponent.class})
+    @Priority(EventPriority.PRIORITY_HIGH)
+    @ReceiveEvent(components = WildAnimalComponent.class)
     public void onFrob(ActivateEvent event, EntityRef entityRef) {
         event.getInstigator().send(new ActivateMatingScreenEvent(entityRef));
         event.consume();
