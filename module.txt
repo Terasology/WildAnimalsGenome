@@ -6,7 +6,7 @@
   "description": "Integrates WildAnimals with Genome adding breeding capabilities.",
   "dependencies": [
     {
-      "id": "Behaviors",
+      "id": "PathfindingBehaviors",
       "minVersion": "1.0.0"
     },
     {

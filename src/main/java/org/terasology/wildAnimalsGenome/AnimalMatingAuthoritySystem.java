@@ -26,7 +26,7 @@ import org.terasology.engine.logic.location.LocationComponent;
 import org.terasology.engine.registry.In;
 import org.terasology.engine.rendering.nui.NUIManager;
 import org.terasology.genome.events.OnBreed;
-import org.terasology.minion.move.MinionMoveComponent;
+import org.terasology.module.pathfindingbehaviors.move.MinionMoveComponent;
 import org.terasology.wildAnimals.component.WildAnimalComponent;
 import org.terasology.wildAnimalsGenome.component.MatingBehaviorComponent;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
