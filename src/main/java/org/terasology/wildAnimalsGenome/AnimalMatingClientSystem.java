@@ -3,7 +3,6 @@
 package org.terasology.wildAnimalsGenome;
 
 import org.terasology.engine.entitySystem.entity.EntityRef;
-import org.terasology.engine.entitySystem.event.ReceiveEvent;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterMode;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
@@ -11,6 +10,7 @@ import org.terasology.engine.logic.characters.CharacterComponent;
 import org.terasology.engine.logic.players.LocalPlayer;
 import org.terasology.engine.registry.In;
 import org.terasology.engine.rendering.nui.NUIManager;
+import org.terasology.gestalt.entitysystem.event.ReceiveEvent;
 import org.terasology.wildAnimalsGenome.event.ActivateMatingScreenEvent;
 import org.terasology.wildAnimalsGenome.ui.AnimalInteractionScreen;
 
@@ -28,7 +28,8 @@ public class AnimalMatingClientSystem extends BaseComponentSystem {
     @ReceiveEvent
     public void onActivateAnimalInteractionScreenEvent(ActivateMatingScreenEvent event, EntityRef entity, CharacterComponent component) {
         if (entity.equals(localPlayer.getCharacterEntity())) {
-            AnimalInteractionScreen animalInteractionScreen = nuiManager.pushScreen("WildAnimalsGenome:animalInteractionScreen", AnimalInteractionScreen.class);
+            AnimalInteractionScreen animalInteractionScreen =
+                    nuiManager.pushScreen("WildAnimalsGenome:animalInteractionScreen", AnimalInteractionScreen.class);
             animalInteractionScreen.setAnimalEntity(event.getTargetEntity());
         }
     }

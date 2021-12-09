@@ -6,11 +6,10 @@ import com.google.common.collect.Lists;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.gestalt.assets.management.AssetManager;
 import org.terasology.engine.entitySystem.entity.EntityManager;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.event.EventPriority;
-import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.event.Priority;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterMode;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
@@ -26,6 +25,8 @@ import org.terasology.engine.logic.location.LocationComponent;
 import org.terasology.engine.registry.In;
 import org.terasology.engine.rendering.nui.NUIManager;
 import org.terasology.genome.events.OnBreed;
+import org.terasology.gestalt.assets.management.AssetManager;
+import org.terasology.gestalt.entitysystem.event.ReceiveEvent;
 import org.terasology.minion.move.MinionMoveComponent;
 import org.terasology.wildAnimals.component.WildAnimalComponent;
 import org.terasology.wildAnimalsGenome.component.MatingBehaviorComponent;
@@ -73,8 +74,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
      */
     private float maxDistanceSquared = 1.8f;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AnimalMatingAuthoritySystem.class);
-
     @Override
     public void update(float delta) {
         BehaviorTree mateBT = assetManager.getAsset("WildAnimalsGenome:matingCritter", BehaviorTree.class).get();
@@ -91,7 +90,8 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
                 MinionMoveComponent minionMoveComponent = entityRef.getComponent(MinionMoveComponent.class);
                 if (minionMoveComponent.target != null) {
                     Vector3f target = new Vector3f(minionMoveComponent.target.x(), minionMoveComponent.target.y(), minionMoveComponent.target.z());
-                    if (entityRef.getComponent(LocationComponent.class).getWorldPosition(new Vector3f()).distanceSquared(target) <= maxDistanceSquared) {
+                    if (entityRef.getComponent(LocationComponent.class).getWorldPosition(new Vector3f())
+                            .distanceSquared(target) <= maxDistanceSquared) {
                         matingComponent.reachedTarget = true;
                         entityRef.saveComponent(matingComponent);
                         entityRef.send(new MatingTargetReachedEvent(entityRef));
@@ -232,7 +232,8 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
     /**
      * Sends a {@link ActivateMatingScreenEvent} to the client activating an animal
      */
-    @ReceiveEvent(priority = EventPriority.PRIORITY_HIGH, components = {WildAnimalComponent.class})
+    @Priority(EventPriority.PRIORITY_HIGH)
+    @ReceiveEvent(components = WildAnimalComponent.class)
     public void onFrob(ActivateEvent event, EntityRef entityRef) {
         event.getInstigator().send(new ActivateMatingScreenEvent(entityRef));
         event.consume();

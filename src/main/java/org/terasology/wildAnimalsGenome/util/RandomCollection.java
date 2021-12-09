@@ -3,8 +3,8 @@
 package org.terasology.wildAnimalsGenome.util;
 
 import java.util.NavigableMap;
-import java.util.TreeMap;
 import java.util.Random;
+import java.util.TreeMap;
 
 
 /**
@@ -26,7 +26,9 @@ public class RandomCollection<E> {
     }
 
     public RandomCollection<E> add(double weight, E result) {
-        if (weight <= 0) return this;
+        if (weight <= 0) {
+            return this;
+        }
         total += weight;
         map.put(total, result);
         return this;
