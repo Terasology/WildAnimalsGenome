@@ -74,8 +74,6 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
      */
     private float maxDistanceSquared = 1.8f;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AnimalMatingAuthoritySystem.class);
-
     @Override
     public void update(float delta) {
         BehaviorTree mateBT = assetManager.getAsset("WildAnimalsGenome:matingCritter", BehaviorTree.class).get();
@@ -92,7 +90,8 @@ public class AnimalMatingAuthoritySystem extends BaseComponentSystem implements 
                 MinionMoveComponent minionMoveComponent = entityRef.getComponent(MinionMoveComponent.class);
                 if (minionMoveComponent.target != null) {
                     Vector3f target = new Vector3f(minionMoveComponent.target.x(), minionMoveComponent.target.y(), minionMoveComponent.target.z());
-                    if (entityRef.getComponent(LocationComponent.class).getWorldPosition(new Vector3f()).distanceSquared(target) <= maxDistanceSquared) {
+                    if (entityRef.getComponent(LocationComponent.class).getWorldPosition(new Vector3f())
+                            .distanceSquared(target) <= maxDistanceSquared) {
                         matingComponent.reachedTarget = true;
                         entityRef.saveComponent(matingComponent);
                         entityRef.send(new MatingTargetReachedEvent(entityRef));

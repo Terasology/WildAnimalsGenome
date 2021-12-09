@@ -10,7 +10,8 @@ import org.terasology.gestalt.entitysystem.event.Event;
 public class ActivateMatingScreenEvent implements Event {
     private EntityRef targetEntity;
 
-    public ActivateMatingScreenEvent() {}
+    public ActivateMatingScreenEvent() {
+    }
 
     public ActivateMatingScreenEvent(EntityRef targetEntity) {
         this.targetEntity = targetEntity;

@@ -28,7 +28,8 @@ public class AnimalMatingClientSystem extends BaseComponentSystem {
     @ReceiveEvent
     public void onActivateAnimalInteractionScreenEvent(ActivateMatingScreenEvent event, EntityRef entity, CharacterComponent component) {
         if (entity.equals(localPlayer.getCharacterEntity())) {
-            AnimalInteractionScreen animalInteractionScreen = nuiManager.pushScreen("WildAnimalsGenome:animalInteractionScreen", AnimalInteractionScreen.class);
+            AnimalInteractionScreen animalInteractionScreen =
+                    nuiManager.pushScreen("WildAnimalsGenome:animalInteractionScreen", AnimalInteractionScreen.class);
             animalInteractionScreen.setAnimalEntity(event.getTargetEntity());
         }
     }

@@ -46,8 +46,9 @@ public class SetMatingTargetBlockNode extends BaseAction {
         MatingComponent matingComponent = actor.getComponent(MatingComponent.class);
         EntityRef matingEntity = matingComponent.matingEntity;
         MinionMoveComponent matingEntityMoveComponent = matingEntity.getComponent(MinionMoveComponent.class);
-        if(matingEntityMoveComponent == null)
+        if (matingEntityMoveComponent == null) {
             return BehaviorState.FAILURE;
+        }
 
         if (matingEntityMoveComponent.target != null) {
             return BehaviorState.SUCCESS;

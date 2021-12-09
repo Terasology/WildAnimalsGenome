@@ -30,6 +30,13 @@ import javax.annotation.Nullable;
  */
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class AnimalGeneticsSystem extends BaseComponentSystem {
+
+    private static final String GENOME_REGISTRY_PREFIX = "WildAnimals:";
+
+    private static final Double SIBLINGS_NORMAL_PROBABILITY = 95.0;
+    private static final Double SIBLINGS_TWINS_PROBABILITY = 4.5;
+    private static final Double SIBLINGS_TRIPLETS_PROBABILITY = 0.5;
+
     @In
     private GenomeRegistry genomeRegistry;
     @In
@@ -38,12 +45,6 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
     private WorldProvider worldProvider;
 
     private BreedingAlgorithm breedingAlgorithm;
-
-    private static final String genomeRegistryPrefix = "WildAnimals:";
-
-    private static final Double SIBLINGS_NORMAL_PROBABILITY = 95.0;
-    private static final Double SIBLINGS_TWINS_PROBABILITY = 4.5;
-    private static final Double SIBLINGS_TRIPLETS_PROBABILITY = 0.5;
 
     @Override
     public void preBegin() {
@@ -60,7 +61,7 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
     @ReceiveEvent
     public void onMatingStart(MatingInitiatedEvent event, EntityRef entityRef, MatingComponent matingComponent) {
         // Build a unique genomeID for insertion into the registry.
-        String genomeID = genomeRegistryPrefix + event.animal1.getId() + ":" + event.animal2.getId();
+        String genomeID = GENOME_REGISTRY_PREFIX + event.animal1.getId() + ":" + event.animal2.getId();
         addPropertyMap(event.animal1, event.animal2, genomeID);
 
         if (!event.animal1.hasComponent(GenomeComponent.class)) {
@@ -86,7 +87,7 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
         event.animal1.saveComponent(genomeComponent1);
         event.animal2.saveComponent(genomeComponent2);
 
-        for(int i=0; i <= this.getSiblings(); i++) {
+        for (int i = 0; i <= this.getSiblings(); i++) {
             if (event.animal1.getParentPrefab().getName().equals("WildAnimals:deer")) {
                 entityRef.send(new OnBreed(event.animal1, event.animal2, entityManager.create("WildAnimals:babyDeer")));
             } else {
@@ -129,11 +130,11 @@ public class AnimalGeneticsSystem extends BaseComponentSystem {
      * Chances of having non-identical twins: 4.5%
      * Chances of having non-identical triplets: 0.5%
      */
-    private int getSiblings () {
+    private int getSiblings() {
         RandomCollection<Integer> rc = new RandomCollection<>();
-        rc.add(SIBLINGS_NORMAL_PROBABILITY,1);
-        rc.add(SIBLINGS_TWINS_PROBABILITY,2);
-        rc.add(SIBLINGS_TRIPLETS_PROBABILITY,3);
+        rc.add(SIBLINGS_NORMAL_PROBABILITY, 1);
+        rc.add(SIBLINGS_TWINS_PROBABILITY, 2);
+        rc.add(SIBLINGS_TRIPLETS_PROBABILITY, 3);
         return rc.next();
     }
 }
