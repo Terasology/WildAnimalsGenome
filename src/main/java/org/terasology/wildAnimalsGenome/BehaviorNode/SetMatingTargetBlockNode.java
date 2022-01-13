@@ -8,7 +8,7 @@ import org.terasology.engine.logic.behavior.BehaviorAction;
 import org.terasology.engine.logic.behavior.core.Actor;
 import org.terasology.engine.logic.behavior.core.BaseAction;
 import org.terasology.engine.logic.behavior.core.BehaviorState;
-import org.terasology.minion.move.MinionMoveComponent;
+import org.terasology.module.behaviors.components.MinionMoveComponent;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
 
 /**
