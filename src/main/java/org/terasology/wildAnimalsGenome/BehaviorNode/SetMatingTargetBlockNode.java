@@ -3,6 +3,7 @@
 package org.terasology.wildAnimalsGenome.BehaviorNode;
 
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.logic.behavior.BehaviorAction;
 import org.terasology.engine.logic.behavior.core.Actor;
@@ -12,8 +13,8 @@ import org.terasology.module.behaviors.components.MinionMoveComponent;
 import org.terasology.wildAnimalsGenome.component.MatingComponent;
 
 /**
- * Updates the target field in the {@link MinionMoveComponent} of the animal's mate with the target set in the current
- * animal's {@link MinionMoveComponent}
+ * Updates the target field in the {@link MinionMoveComponent} of the animal's mate with the target set in the current animal's {@link
+ * MinionMoveComponent}
  */
 @BehaviorAction(name = "set_mating_target_block")
 public class SetMatingTargetBlockNode extends BaseAction {
@@ -26,10 +27,9 @@ public class SetMatingTargetBlockNode extends BaseAction {
         MinionMoveComponent actorMoveComponent = actor.getComponent(MinionMoveComponent.class);
         MinionMoveComponent matingEntityMoveComponent = matingEntity.getComponent(MinionMoveComponent.class);
 
-
         if (actorMoveComponent.target != null) {
-            Vector3f actorTarget = actorMoveComponent.target;
-            matingEntityMoveComponent.target = new Vector3f(actorTarget);
+            Vector3i actorTarget = actorMoveComponent.target;
+            matingEntityMoveComponent.target = new Vector3i(actorTarget);
             matingEntityMoveComponent.target.add(1, 0, 0);
             matingEntity.saveComponent(matingEntityMoveComponent);
 
