@@ -3,7 +3,6 @@
     {
       sequence: [
         set_mating_target_block,
-        ensure_target_present,
         move_to
       ]
     }
